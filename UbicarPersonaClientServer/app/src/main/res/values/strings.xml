@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">UbicarPersona</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_donde_esta">dondeEsta</string>
+</resources>
