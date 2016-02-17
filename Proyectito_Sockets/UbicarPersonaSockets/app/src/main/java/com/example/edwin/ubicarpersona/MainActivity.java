@@ -179,7 +179,7 @@ Button b= (Button) findViewById(R.id.button);
     public class SolicitarActualizar extends AsyncTask<Void, Void, Void> {
 
         // String dstAddress="192.168.1.78";
-        String dstAddress="10.0.5.121";
+        String dstAddress="10.0.5.169";
         int dstPort=5000;
         String response = "";
 
@@ -275,7 +275,7 @@ Button b= (Button) findViewById(R.id.button);
         ProgressDialog loading;
 
         // String dstAddress="192.168.1.78";
-        String dstAddress="10.0.5.121";
+        String dstAddress="10.0.5.169";
         int dstPort=5000;
         String response = "";
 
@@ -500,7 +500,7 @@ Button b= (Button) findViewById(R.id.button);
         ProgressDialog loading;
 
         // String dstAddress="192.168.1.78";
-        String dstAddress="10.0.5.121";
+        String dstAddress="10.0.5.169";
         int dstPort=5000;
         String response = "";
 
