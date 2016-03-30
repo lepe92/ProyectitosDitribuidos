@@ -1,6 +1,7 @@
 package com.example.eejl_.fblogin;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -24,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.webkit.WebView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -62,6 +64,7 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
     Bitmap bitmap;
     Dialog builder;
     ImageView imageView;
+    ArrayList<String> idcamiones;
     boolean ver=false;
     private GoogleMap mMap;
     LocationManager locationManager;
@@ -133,21 +136,68 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
         chofer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AlertDialog.Builder builderSingle = new AlertDialog.Builder(Mapa.this);
+                builderSingle.setIcon(R.drawable.bus);
+                builderSingle.setTitle("Select One Name:-");
 
-                    builder = new Dialog(Mapa.this);
-                    builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                    builder.getWindow().setBackgroundDrawable(
-                            new ColorDrawable(android.graphics.Color.TRANSPARENT));
-                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialogInterface) {
-                            //nothing;
-                        }
-                    });
+                final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                        Mapa.this,
+                        android.R.layout.select_dialog_singlechoice);
+               // arrayAdapter.add("Hardik");
+                for(int i=0; i<idcamiones.size();i++){
+                    arrayAdapter.add(idcamiones.get(i));
+                }
 
-                    imageView = new ImageView(Mapa.this);
-                LoadImage m= new LoadImage();
-                m.execute();
+                builderSingle.setNegativeButton(
+                        "cancel",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                builderSingle.setAdapter(
+                        arrayAdapter,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String strName = arrayAdapter.getItem(which);
+                                AlertDialog.Builder builderInner = new AlertDialog.Builder(
+                                        Mapa.this);
+                                builderInner.setMessage(strName);
+                                builderInner.setTitle("Your Selected Item is");
+                                builderInner.setPositiveButton(
+                                        "Ok",
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(
+                                                    DialogInterface dialog,
+                                                    int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                builderInner.show();
+
+                                builder = new Dialog(Mapa.this);
+                                builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                                builder.getWindow().setBackgroundDrawable(
+                                        new ColorDrawable(android.graphics.Color.TRANSPARENT));
+                                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                    @Override
+                                    public void onDismiss(DialogInterface dialogInterface) {
+                                        //nothing;
+                                    }
+                                });
+
+                                imageView = new ImageView(Mapa.this);
+                                LoadImage m= new LoadImage();
+                                m.execute();
+                            }
+                        });
+                builderSingle.show();
+
+
                 //  imageView.setImageBitmap(getBitmapFromURL("http://jimenezlepe.comuv.com/Ubus/choferes/leo.jpg"));
 
 
@@ -229,9 +279,11 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
     }
 
     private class LoadImage extends AsyncTask<String, String, Bitmap> {
+        ProgressDialog loading;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            loading = ProgressDialog.show(Mapa.this, "Descargando imagen...", null, true, true);
 
 
         }
@@ -247,7 +299,7 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
         }
 
         protected void onPostExecute(Bitmap image) {
-
+            loading.dismiss();
             if(image != null){
                 imageView.setImageBitmap(image);
                 builder.addContentView(imageView, new RelativeLayout.LayoutParams(
@@ -461,16 +513,20 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
 
                 //dibujar maradorcitos de camiones
 
+            idcamiones= new ArrayList<>();
+
             try {
                 JSONObject jsnobject = new JSONObject(s);
                 JSONArray jsonArray = jsnobject.getJSONArray("Camion");
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject explrObject = jsonArray.getJSONObject(i);
                     //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
-
+                    idcamiones.add(explrObject.getString("idcamion"));
                     mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("etiqueta")+" capacidad"+explrObject.getString("capacidad")).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
                 }
             }
+
+//aqui meterle datos al arraylist
             catch(Exception io){}
     }
     }

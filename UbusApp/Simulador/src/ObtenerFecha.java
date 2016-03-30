@@ -9,10 +9,10 @@ import java.util.Date;
 public class ObtenerFecha {
  
     //Declaramos el servidor de donde obtendremos la fecha
-
-    String servidor = "0.north-america.pool.ntp.org";
+String servidor = "10.0.5.241";
+    //String servidor = "0.north-america.pool.ntp.org";
     public Date getNTPDate() {
-         //Se le da un valor nulo por defecto a la variable
+         //Se le da un valor nulo por dfeecto a la variable
 
         Date fechaRecibida = null;
         //Se crea un objeto de tipo NTPUDPClient Clase de la libreria Commons
@@ -32,7 +32,7 @@ public class ObtenerFecha {
 
             fechaRecibida = new Date(fecha.getMessage().getTransmitTimeStamp().getTime());
         } catch (Exception e) {
-            System.err.println("Error "+e.getMessage());
+            System.err.println("Error, servidor ntp no disponible"+e.getMessage());
         }
         //Cerramos la comunicación con el cliente
 
