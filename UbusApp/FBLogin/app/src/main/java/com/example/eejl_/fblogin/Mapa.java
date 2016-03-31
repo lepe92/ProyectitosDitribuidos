@@ -46,10 +46,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.URL;
@@ -61,6 +65,8 @@ import java.util.TimerTask;
 
 public class Mapa extends FragmentActivity implements OnMapReadyCallback, LocationListener {
     WebView v1;
+    String resultado="";
+    String idbus="";
     Bitmap bitmap;
     Dialog builder;
     ImageView imageView;
@@ -144,75 +150,74 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
                         Mapa.this,
                         android.R.layout.select_dialog_singlechoice);
                // arrayAdapter.add("Hardik");
-                for(int i=0; i<idcamiones.size();i++){
-                    arrayAdapter.add(idcamiones.get(i));
-                }
+                if(!idcamiones.isEmpty()) {
+                    //solamente si hay camioncitos del simulador comienza a realizar esto
+                    for (int i = 0; i < idcamiones.size(); i++) {
+                        arrayAdapter.add(idcamiones.get(i));
+                    }
 
-                builderSingle.setNegativeButton(
-                        "cancel",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
+                    builderSingle.setNegativeButton(
+                            "cancel",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
 
-                builderSingle.setAdapter(
-                        arrayAdapter,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                String strName = arrayAdapter.getItem(which);
-                                AlertDialog.Builder builderInner = new AlertDialog.Builder(
-                                        Mapa.this);
-                                builderInner.setMessage(strName);
-                                builderInner.setTitle("Your Selected Item is");
-                                builderInner.setPositiveButton(
-                                        "Ok",
-                                        new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(
-                                                    DialogInterface dialog,
-                                                    int which) {
-                                                dialog.dismiss();
-                                            }
-                                        });
-                                builderInner.show();
+                    builderSingle.setAdapter(
+                            arrayAdapter,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    String strName = arrayAdapter.getItem(which);
 
-                                builder = new Dialog(Mapa.this);
-                                builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                                builder.getWindow().setBackgroundDrawable(
-                                        new ColorDrawable(android.graphics.Color.TRANSPARENT));
-                                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                                    @Override
-                                    public void onDismiss(DialogInterface dialogInterface) {
-                                        //nothing;
-                                    }
-                                });
+                                    idbus=strName;
+                                    Log.i("mensaje", idbus);
 
-                                imageView = new ImageView(Mapa.this);
-                                LoadImage m= new LoadImage();
-                                m.execute();
-                            }
-                        });
-                builderSingle.show();
+                                    //obtenerURL();
+                                    LoadImage m = new LoadImage();
+                                    m.execute();
 
-
-                //  imageView.setImageBitmap(getBitmapFromURL("http://jimenezlepe.comuv.com/Ubus/choferes/leo.jpg"));
-
-
-/*                if(ver==false){
-                v1.setVisibility(View.VISIBLE);
-                    v1.loadUrl("http://jimenezlepe.comuv.com/Ubus/choferes/leo.jpg");
-
-                ver=true;
-                }
-                else{
-                    v1.setVisibility(View.INVISIBLE);
-                    ver=false;
-                }
-                //ProgressDialog loading = ProgressDialog.show(Mapa.this, "Descargando foto del chofer...", null, true, true);
+                                    /*AlertDialog.Builder builderInner = new AlertDialog.Builder(
+                                            Mapa.this);
+                                    builderInner.setMessage(strName);
+                                    builderInner.setTitle("Your Selected Item is");
+                                    builderInner.setPositiveButton(
+                                            "Ok",
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(
+                                                        DialogInterface dialog,
+                                                        int which) {
+                                                    dialog.dismiss();
+                                                }
+                                            });
+                                    builderInner.show();
 */
+
+//////////////////mostrar la imagen
+
+                                    builder = new Dialog(Mapa.this);
+                                    builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                                    builder.getWindow().setBackgroundDrawable(
+                                            new ColorDrawable(android.graphics.Color.TRANSPARENT));
+                                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                        @Override
+                                        public void onDismiss(DialogInterface dialogInterface) {
+                                            //nothing;
+                                        }
+                                    });
+
+                                    imageView = new ImageView(Mapa.this);
+
+
+////////////////////////fin mostrar imagen
+                                }
+                            });
+                    builderSingle.show();
+                }//fin del if que contiene id de camiones
+
             }
         });
 
@@ -225,38 +230,6 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
         timer.scheduleAtFixedRate(obtenCamiones, 1000, 5000);
     }
 
-    private Bitmap getImageBitmap(String url) {
-        Bitmap bm = null;
-        try {
-            URL aURL = new URL(url);
-            URLConnection conn2 = aURL.openConnection();
-            conn2.connect();
-            InputStream is = conn2.getInputStream();
-            Log.d("mensaje", "descargando imagen");
-            BufferedInputStream bis = new BufferedInputStream(is);
-            bm = BitmapFactory.decodeStream(bis);
-            bis.close();
-            is.close();
-        } catch (IOException e) {
-            Log.d("mensaje", e+"");
-        }
-        return bm;
-    }
-
-    public static Bitmap getBitmapFromURL(String src) {
-        try {
-            URL url = new URL(src);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            return myBitmap;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    } // Author: silentnuke
 
     @Override
     public void onLocationChanged(Location location) {
@@ -288,8 +261,85 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
 
         }
         protected Bitmap doInBackground(String... args) {
+//obtener url de imagen
+                    OutputStream os = null;
+                    InputStream is = null;
+                    HttpURLConnection conn = null;
+                    BufferedReader bufferedReader = null;
+                    try {
+                        Log.i("mensaje", "legaste al hilo de solicitud");
+                        //constants
+                        //http://jimenezlepe.comuv.com/solicita.php
+                        URL url = new URL("http://jimenezlepe.comuv.com/Ubus/UbusApp/consultaurl.php");
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("idbus", idbus);
+
+                        //jsonObject.put("rssi", rssi1);
+
+                        String message = jsonObject.toString();
+
+                        conn = (HttpURLConnection) url.openConnection();
+                        conn.setReadTimeout(10000 /*milliseconds*/);
+                        conn.setConnectTimeout(15000 /* milliseconds */);
+                        conn.setRequestMethod("POST");
+                        conn.setDoInput(true);
+                        conn.setDoOutput(true);
+                        conn.setFixedLengthStreamingMode(message.getBytes().length);
+
+                        //make some HTTP header nicety
+                        conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                        conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+                        //open
+                        conn.connect();
+
+                        //setup send
+
+                        os = new BufferedOutputStream(conn.getOutputStream());
+                        os.write(message.getBytes());
+                        //clean up
+                        os.flush();
+
+                        //do somehting with response
+                        is = conn.getInputStream();
+                        bufferedReader = new BufferedReader(new InputStreamReader(is));
+
+                        resultado="";
+                        //Insercion correcta
+                        String json;
+                        while ((json = bufferedReader.readLine()) != null) {
+                            Log.i("mensaje", json);
+                            resultado= json;
+                        }
+
+                        //  Toast.makeText(getApplicationContext(), is.toString(), Toast.LENGTH_LONG).show();
+                        //Log.i("respuesta", is.toString());
+                        //String contentAsString = readIt(is,len);
+                    } catch (IOException e) {
+                        Log.i("mensaje", "falla de E/S");
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.i("mensaje", "falla de json");
+                    } finally {
+                        //clean up
+                        try {
+                            os.close();
+                            is.close();
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        conn.disconnect();
+                    }
+
+
+
+
             try {
-                URL url=new URL("http://jimenezlepe.comuv.com/Ubus/choferes/leo.jpg");
+                //URL url=new URL("http://jimenezlepe.comuv.com/Ubus/choferes/leo.jpg");
+                URL url=new URL(resultado);
                 bitmap = BitmapFactory.decodeStream((InputStream) url.getContent());
 
             } catch (Exception e) {
@@ -421,8 +471,93 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
 
     }
 
+    public void obtenerURL() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OutputStream os = null;
+                InputStream is = null;
+                HttpURLConnection conn = null;
+                BufferedReader bufferedReader = null;
+                try {
+                    Log.i("mensaje", "legaste al hilo de solicitud");
+                    //constants
+                    //http://jimenezlepe.comuv.com/solicita.php
+                    URL url = new URL("http://jimenezlepe.comuv.com/Ubus/UbusApp/consultaurl.php");
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("idbus", idbus);
+
+                    //jsonObject.put("rssi", rssi1);
+
+                    String message = jsonObject.toString();
+
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.setReadTimeout(10000 /*milliseconds*/);
+                    conn.setConnectTimeout(15000 /* milliseconds */);
+                    conn.setRequestMethod("POST");
+                    conn.setDoInput(true);
+                    conn.setDoOutput(true);
+                    conn.setFixedLengthStreamingMode(message.getBytes().length);
+
+                    //make some HTTP header nicety
+                    conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                    conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+                    //open
+                    conn.connect();
+
+                    //setup send
+
+                    os = new BufferedOutputStream(conn.getOutputStream());
+                    os.write(message.getBytes());
+                    //clean up
+                    os.flush();
+
+                    //do somehting with response
+                    is = conn.getInputStream();
+                    bufferedReader = new BufferedReader(new InputStreamReader(is));
+
+                    resultado="";
+                    //Insercion correcta
+                    String json;
+                    while ((json = bufferedReader.readLine()) != null) {
+                        Log.i("mensaje", json);
+                        resultado= json;
+                    }
+
+                    //  Toast.makeText(getApplicationContext(), is.toString(), Toast.LENGTH_LONG).show();
+                    //Log.i("respuesta", is.toString());
+                    //String contentAsString = readIt(is,len);
+                } catch (IOException e) {
+                    Log.i("mensaje", "falla de E/S");
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.i("mensaje", "falla de json");
+                } finally {
+                    //clean up
+                    try {
+                        os.close();
+                        is.close();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    conn.disconnect();
+                }
+            }
+        }).start();
+    }
+
+
+
     public class ContactarSimulador extends AsyncTask<String, Void, String> {
-        String dstAddress="10.0.5.121";
+        //String dstAddress="10.0.5.121";
+        String dstAddress="10.0.5.241";
+
+        //String dstAddress="192.168.1.70";
         int dstPort=5000;
         String response = "";
 
@@ -531,3 +666,4 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
     }
     }
 }
+
