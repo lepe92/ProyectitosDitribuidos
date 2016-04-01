@@ -555,8 +555,8 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
 
     public class ContactarSimulador extends AsyncTask<String, Void, String> {
         //String dstAddress="10.0.5.121";
-        String dstAddress="10.0.5.241";
-
+        //String dstAddress="10.0.5.241";
+        String dstAddress="10.0.5.115";
         //String dstAddress="192.168.1.70";
         int dstPort=5000;
         String response = "";
