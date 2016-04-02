@@ -4,9 +4,12 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,9 +20,11 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,9 +33,15 @@ import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -64,6 +75,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class Mapa extends FragmentActivity implements OnMapReadyCallback, LocationListener {
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
+    private boolean isReceiverRegistered;
+String token="";
     WebView v1;
     String resultado="";
     String idbus="";
@@ -228,7 +244,40 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
         //cuando cambie la ubicación se debe contactar al simulador cada cinco segundos
         TimerTask obtenCamiones = new contacta();
         timer.scheduleAtFixedRate(obtenCamiones, 1000, 5000);
-    }
+
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                //mRegistrationProgressBar.setVisibility(ProgressBar.GONE);
+                SharedPreferences sharedPreferences =
+                        PreferenceManager.getDefaultSharedPreferences(context);
+                boolean sentToken = sharedPreferences
+                        .getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
+                if (sentToken) {
+                    //mInformationTextView.setText(getString(R.string.gcm_send_message));
+                } else {
+                   // mInformationTextView.setText(getString(R.string.token_error_message));
+                }
+            }
+        };
+        //mInformationTextView = (TextView) findViewById(R.id.informationTextView);
+
+        // Registering BroadcastReceiver
+        registerReceiver();
+
+        if (checkPlayServices()) {
+            // Start IntentService to register this application with GCM.
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
+        }
+
+
+
+
+
+        this.registerReceiver(mMessageReceiver, new IntentFilter("unique_name"));
+        this.registerReceiver(mMessageReceiver, new IntentFilter("unique_name2"));
+    }//end onCreate
 
 
     @Override
@@ -665,5 +714,66 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
             catch(Exception io){}
     }
     }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver();
+        this.registerReceiver(mMessageReceiver, new IntentFilter("unique_name"));
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        isReceiverRegistered = false;
+        super.onPause();
+
+        this.unregisterReceiver(mMessageReceiver);
+    }
+
+    private void registerReceiver(){
+        if(!isReceiverRegistered) {
+            LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                    new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
+            isReceiverRegistered = true;
+
+        }
+    }
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else {
+                Log.i("mensaje", "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            // Extract data included in the Intent
+            String message = intent.getStringExtra("message");
+            if(message.contains("token@")){
+                String []temp= message.split("@");
+                token=temp[1];
+                Log.i("mensaje Token ",token);
+            }
+            else{Log.i("mensaje GCM ",message);}
+            //do other stuff here
+        }
+    };
 }
 

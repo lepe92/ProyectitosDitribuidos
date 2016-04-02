@@ -31,7 +31,7 @@ import com.google.android.gms.gcm.GcmListenerService;
 
 public class MyGcmListenerService extends GcmListenerService {
 
-    private static final String TAG = "MyGcmListenerService";
+    private static final String TAG = "mensaje";
 
     /**
      * Called when message is received.
@@ -44,11 +44,11 @@ public class MyGcmListenerService extends GcmListenerService {
     @Override
     public void onMessageReceived(String from, Bundle data) {
         String message = data.getString("message");
-        Log.d(TAG, "From: " + from);
-        Log.d(TAG, "Message: " + message);
+        //Log.i(TAG, "From: " + from);
+        //Log.i(TAG, "Message: " + message);
 
-        Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
-        vibrator.vibrate(2000);
+      //  Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
+      //  vibrator.vibrate(2000);
 
         if (from.startsWith("/topics/")) {
             // message received from some topic.
@@ -68,7 +68,7 @@ public class MyGcmListenerService extends GcmListenerService {
          * In some cases it may be useful to show a notification indicating to the user
          * that a message was received.
          */
-        sendNotification(message);
+        //sendNotification(message);
         // [END_EXCLUDE]
         updateMyActivity(this,message);
     }

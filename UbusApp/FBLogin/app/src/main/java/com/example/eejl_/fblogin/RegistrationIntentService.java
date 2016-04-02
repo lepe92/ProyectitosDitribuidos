@@ -15,6 +15,7 @@
  */
 package com.example.eejl_.fblogin;
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -52,7 +53,7 @@ public class RegistrationIntentService extends IntentService {
                     GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
             // [END get_token]
             Log.i(TAG, "GCM Registration Token: " + token);
-
+            updateMyActivity(this,"token@"+token);
             // TODO: Implement this method to send any registration to your app's servers.
             sendRegistrationToServer(token);
 
@@ -73,6 +74,20 @@ public class RegistrationIntentService extends IntentService {
         // Notify UI that registration has completed, so the progress indicator can be hidden.
         Intent registrationComplete = new Intent(QuickstartPreferences.REGISTRATION_COMPLETE);
         LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
+    }
+
+
+
+    ////para mandar mensaje al activity
+    static void updateMyActivity(Context context, String message) {
+
+        Intent intent = new Intent("unique_name2");
+
+        //put whatever data you want to send, if any
+        intent.putExtra("message", message);
+
+        //send broadcast
+        context.sendBroadcast(intent);
     }
 
     /**
