@@ -43,8 +43,11 @@ public class RutasMenu extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 LoginManager.getInstance().logOut();
-                LoginManager.getInstance().logOut();
-                finish();
+                Intent i = new Intent(RutasMenu.this, MainActivity.class);
+// set the new task and clear flags
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(i);
+                //finish();
             }
         });
         ls = (ListView) findViewById(R.id.listView);

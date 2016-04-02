@@ -134,7 +134,7 @@ String token="";
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-       v1=(WebView) findViewById(R.id.webview);
+        v1=(WebView) findViewById(R.id.webview);
         v1.setVisibility(View.INVISIBLE);
 
         Button solicita=(Button)findViewById(R.id.mapButtonSolicita);
@@ -238,12 +238,14 @@ String token="";
         });
 
 
+        ContactarSimulador myClientTask= new ContactarSimulador();
+        myClientTask.execute();
 
-
-        Timer timer = new Timer();
+        //Timer timer = new Timer();
         //cuando cambie la ubicación se debe contactar al simulador cada cinco segundos
-        TimerTask obtenCamiones = new contacta();
-        timer.scheduleAtFixedRate(obtenCamiones, 1000, 5000);
+        //TimerTask obtenCamiones = new contacta();
+        //timer.scheduleAtFixedRate(obtenCamiones, 1000, 5000);
+
 
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -674,44 +676,7 @@ String token="";
         protected void onPostExecute(String s) {
             //procesar el JSON que se ha recibido
             super.onPostExecute(s);
-
-            mMap.clear();
-
-
-
-            // Add a marker in Sydney and move the camera
-
-              PolylineOptions polylineOptions = new PolylineOptions();
-
-// Create polyline options with existing LatLng ArrayList
-                polylineOptions.addAll(coordList);
-                polylineOptions
-                        .width(5)
-                        .color(Color.RED);
-
-// Adding multiple points in map using polyline and arraylist
-                mMap.addPolyline(polylineOptions);
-            MarkerOptions m=new MarkerOptions().position(ubicacionActual).title("Mi ubicacion").draggable(true);
-            //m.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bus));
-            mMap.addMarker(m);
-
-                //dibujar maradorcitos de camiones
-
-            idcamiones= new ArrayList<>();
-
-            try {
-                JSONObject jsnobject = new JSONObject(s);
-                JSONArray jsonArray = jsnobject.getJSONArray("Camion");
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject explrObject = jsonArray.getJSONObject(i);
-                    //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
-                    idcamiones.add(explrObject.getString("idcamion"));
-                    mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("etiqueta")+" capacidad"+explrObject.getString("capacidad")).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
-                }
-            }
-
-//aqui meterle datos al arraylist
-            catch(Exception io){}
+dibujarCamiones(s);
     }
     }
 
@@ -771,9 +736,50 @@ String token="";
                 token=temp[1];
                 Log.i("mensaje Token ",token);
             }
-            else{Log.i("mensaje GCM ",message);}
+            else{Log.i("mensaje GCM ",message);
+            dibujarCamiones(message);}
             //do other stuff here
         }
     };
+
+    public void dibujarCamiones(String s){
+        mMap.clear();
+
+
+
+        // Add a marker in Sydney and move the camera
+
+        PolylineOptions polylineOptions = new PolylineOptions();
+
+// Create polyline options with existing LatLng ArrayList
+        polylineOptions.addAll(coordList);
+        polylineOptions
+                .width(5)
+                .color(Color.RED);
+
+// Adding multiple points in map using polyline and arraylist
+        mMap.addPolyline(polylineOptions);
+        MarkerOptions m=new MarkerOptions().position(ubicacionActual).title("Mi ubicacion").draggable(true);
+        //m.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bus));
+        mMap.addMarker(m);
+
+        //dibujar maradorcitos de camiones
+
+        idcamiones= new ArrayList<>();
+
+        try {
+            JSONObject jsnobject = new JSONObject(s);
+            JSONArray jsonArray = jsnobject.getJSONArray("Camion");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject explrObject = jsonArray.getJSONObject(i);
+                //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
+                idcamiones.add(explrObject.getString("idcamion"));
+                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("etiqueta")+" capacidad"+explrObject.getString("capacidad")).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
+            }
+        }
+
+//aqui meterle datos al arraylist
+        catch(Exception io){}
+    }
 }
 
