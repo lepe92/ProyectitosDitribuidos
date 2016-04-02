@@ -1,0 +1,171 @@
+{
+  "project_info": {
+    "project_id": "ubusgcm",
+    "project_number": "697393119763",
+    "name": "UbusGCM"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697393119763:android:7cd29bdfbb78a519",
+        "client_id": "android:com.example.com.eejl_.pruebagcm",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.example.com.eejl_.pruebagcm",
+          "certificate_hash": []
+        }
+      },
+      "oauth_client": [],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 2,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 1
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697393119763:android:bbfe3fd0651f1e80",
+        "client_id": "android:com.example.com.eejl_.GCM",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.example.com.eejl_.GCM",
+          "certificate_hash": []
+        }
+      },
+      "oauth_client": [],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 2,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 1
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697393119763:android:fdf4008f71df6404",
+        "client_id": "android:com.example.com.eejl.gcm",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.example.com.eejl.gcm",
+          "certificate_hash": []
+        }
+      },
+      "oauth_client": [],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 2,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 1
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697393119763:android:f36173e948059ccb",
+        "client_id": "android:gcm.play.android.samples.com.gcmquickstart",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "gcm.play.android.samples.com.gcmquickstart",
+          "certificate_hash": []
+        }
+      },
+      "oauth_client": [],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 2,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 1
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697393119763:android:24d2a84c6f1348db",
+        "client_id": "android:com.example.eejl_.fblogin",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.example.eejl_.fblogin",
+          "certificate_hash": []
+        }
+      },
+      "oauth_client": [],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 2,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 1
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}
