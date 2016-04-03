@@ -43,7 +43,7 @@ public class Server {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    public static void main(String args[]){
+  /*  public static void main(String args[]){
     Server s= new Server(5000);
-    }
+    }*/
 }

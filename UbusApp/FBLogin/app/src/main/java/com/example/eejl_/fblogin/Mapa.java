@@ -703,8 +703,8 @@ String token="";
                 try {
                     //ubicacion y ruta
                     jsonObject.put("Ruta", Ruta[0]);
-                    jsonObject.put("lat",ubicacionActual.latitude);
-                    jsonObject.put("lng",ubicacionActual.longitude);
+                    jsonObject.put("lat",""+ubicacionActual.latitude);
+                    jsonObject.put("lng",""+ubicacionActual.longitude);
                     jsonObject.put("Token",token);
                 } catch (JSONException e) {
                     e.printStackTrace();
