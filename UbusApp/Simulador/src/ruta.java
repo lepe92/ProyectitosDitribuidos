@@ -63,7 +63,7 @@ public class ruta
     
     public static void leerArchivo_Ruta_txt()
     {
-        String fname = "C:\\wamp\\www\\Ubus\\Ruta.txt";
+        String fname = "C:\\wamp\\www\\Ubus\\Ruta_25.txt";
         File f1 = new File(fname);
         
         RandomAccessFile archivo;

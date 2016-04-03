@@ -55,6 +55,17 @@ TextView yacuenta;
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        Profile p= Profile.getCurrentProfile();
+        if(p!=null){
+            Log.d("bienvenido", p.getName());
+            Intent ventanitaRuta=  new Intent(this, RutasMenu.class);
+            startActivity(ventanitaRuta);
+        }
+    }
+
+    @Override
     protected void onRestart() {
         super.onRestart();
         Profile p= Profile.getCurrentProfile();

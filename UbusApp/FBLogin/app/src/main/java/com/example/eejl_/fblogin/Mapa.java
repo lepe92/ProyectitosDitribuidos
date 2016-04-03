@@ -225,17 +225,17 @@ String token="";
                 final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
                         Mapa.this,
                         android.R.layout.select_dialog_singlechoice);
-               // arrayAdapter.add("Hardik");
+                // arrayAdapter.add("Hardik");
                 /*if(!idcamiones.isEmpty()) {
                     //solamente si hay camioncitos del simulador comienza a realizar esto
                     for (int i = 0; i < idcamiones.size(); i++) {
                         arrayAdapter.add(idcamiones.get(i));
                     }*/
-                    if(!nombrecamiones.isEmpty()) {
-                        //solamente si hay camioncitos del simulador comienza a realizar esto
-                        for (int i = 0; i < nombrecamiones.size(); i++) {
-                            arrayAdapter.add(nombrecamiones.get(i));
-                        }
+                if (!nombrecamiones.isEmpty()) {
+                    //solamente si hay camioncitos del simulador comienza a realizar esto
+                    for (int i = 0; i < nombrecamiones.size(); i++) {
+                        arrayAdapter.add(nombrecamiones.get(i));
+                    }
                     builderSingle.setNegativeButton(
                             "cancel",
                             new DialogInterface.OnClickListener() {
@@ -253,8 +253,8 @@ String token="";
                                     //String strName = arrayAdapter.getItem(which);
                                     //obtener el id en los nombre de camiones y con eso
                                     //el id en el idcamiones
-                                    int id= nombrecamiones.indexOf(arrayAdapter.getItem(which));
-                                    idbus=idcamiones.get(id);
+                                    int id = nombrecamiones.indexOf(arrayAdapter.getItem(which));
+                                    idbus = idcamiones.get(id);
                                     Log.i("mensaje", idbus);
 
                                     //obtenerURL();
@@ -304,8 +304,7 @@ String token="";
         });
 
 
-        ContactarSimulador myClientTask= new ContactarSimulador();
-        myClientTask.execute();
+
 
         //Timer timer = new Timer();
         //cuando cambie la ubicación se debe contactar al simulador cada cinco segundos
@@ -345,6 +344,10 @@ String token="";
 
         this.registerReceiver(mMessageReceiver, new IntentFilter("unique_name"));
         this.registerReceiver(mMessageReceiver, new IntentFilter("unique_name2"));
+
+//mandaba token vacío, se enviará al recibir el token mejor
+        //ContactarSimulador myClientTask= new ContactarSimulador();
+        //myClientTask.execute();
     }//end onCreate
 
 
@@ -802,6 +805,8 @@ dibujarCamiones(s);
                 String []temp= message.split("@");
                 token=temp[1];
                 Log.i("mensaje Token ",token);
+                ContactarSimulador myClientTask= new ContactarSimulador();
+                myClientTask.execute();
             }
             else{Log.i("mensaje GCM ",message);
             dibujarCamiones(message);}
