@@ -87,6 +87,7 @@ String token="";
     Dialog builder;
     ImageView imageView;
     ArrayList<String> idcamiones;
+    ArrayList<String> nombrecamiones;
     boolean ver=false;
     private GoogleMap mMap;
     LocationManager locationManager;
@@ -100,6 +101,8 @@ String token="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        idcamiones= new ArrayList<>();
+        nombrecamiones= new ArrayList<>();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapa);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -144,7 +147,64 @@ String token="";
         solicita.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ProgressDialog loading = ProgressDialog.show(Mapa.this, "Pidiendo camión...", null, true, true);
+                //ProgressDialog loading = ProgressDialog.show(Mapa.this, "Pidiendo camión...", null, true, true);
+                AlertDialog.Builder builderSingle = new AlertDialog.Builder(Mapa.this);
+                builderSingle.setIcon(R.drawable.bus);
+                builderSingle.setTitle("Selecciona un camión:-");
+
+                final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                        Mapa.this,
+                        android.R.layout.select_dialog_singlechoice);
+                // arrayAdapter.add("Hardik");
+                /*if(!idcamiones.isEmpty()) {
+                    //solamente si hay camioncitos del simulador comienza a realizar esto
+                    for (int i = 0; i < idcamiones.size(); i++) {
+                        arrayAdapter.add(idcamiones.get(i));
+                    }*/
+                if(!nombrecamiones.isEmpty()) {
+                    //solamente si hay camioncitos del simulador comienza a realizar esto
+                    for (int i = 0; i < nombrecamiones.size(); i++) {
+                        arrayAdapter.add(nombrecamiones.get(i));
+                    }
+                    builderSingle.setNegativeButton(
+                            "cancel",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+
+                    builderSingle.setAdapter(
+                            arrayAdapter,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //String strName = arrayAdapter.getItem(which);
+                                    //obtener el id en los nombre de camiones y con eso
+                                    //el id en el idcamiones
+                                    int id= nombrecamiones.indexOf(arrayAdapter.getItem(which));
+                                    idbus=idcamiones.get(id);
+                                    Log.i("mensaje", idbus);
+                                    AlertDialog.Builder builderInner = new AlertDialog.Builder(
+                                            Mapa.this);
+                                    builderInner.setMessage(arrayAdapter.getItem(which));
+                                    builderInner.setTitle("Seleccionaste");
+                                    builderInner.setPositiveButton(
+                                            "Ok",
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(
+                                                        DialogInterface dialog,
+                                                        int which) {
+                                                    dialog.dismiss();
+                                                }
+                                            });
+                                    builderInner.show();
+                                }
+                            });
+                    builderSingle.show();
+                }
             }
         });
 
@@ -160,18 +220,22 @@ String token="";
             public void onClick(View v) {
                 AlertDialog.Builder builderSingle = new AlertDialog.Builder(Mapa.this);
                 builderSingle.setIcon(R.drawable.bus);
-                builderSingle.setTitle("Select One Name:-");
+                builderSingle.setTitle("Selecciona un camión:-");
 
                 final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
                         Mapa.this,
                         android.R.layout.select_dialog_singlechoice);
                // arrayAdapter.add("Hardik");
-                if(!idcamiones.isEmpty()) {
+                /*if(!idcamiones.isEmpty()) {
                     //solamente si hay camioncitos del simulador comienza a realizar esto
                     for (int i = 0; i < idcamiones.size(); i++) {
                         arrayAdapter.add(idcamiones.get(i));
-                    }
-
+                    }*/
+                    if(!nombrecamiones.isEmpty()) {
+                        //solamente si hay camioncitos del simulador comienza a realizar esto
+                        for (int i = 0; i < nombrecamiones.size(); i++) {
+                            arrayAdapter.add(nombrecamiones.get(i));
+                        }
                     builderSingle.setNegativeButton(
                             "cancel",
                             new DialogInterface.OnClickListener() {
@@ -186,9 +250,11 @@ String token="";
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    String strName = arrayAdapter.getItem(which);
-
-                                    idbus=strName;
+                                    //String strName = arrayAdapter.getItem(which);
+                                    //obtener el id en los nombre de camiones y con eso
+                                    //el id en el idcamiones
+                                    int id= nombrecamiones.indexOf(arrayAdapter.getItem(which));
+                                    idbus=idcamiones.get(id);
                                     Log.i("mensaje", idbus);
 
                                     //obtenerURL();
@@ -605,9 +671,9 @@ String token="";
 
 
     public class ContactarSimulador extends AsyncTask<String, Void, String> {
-        //String dstAddress="10.0.5.121";
+        String dstAddress="10.0.5.121";
         //String dstAddress="10.0.5.241";
-        String dstAddress="10.0.5.115";
+        //String dstAddress="10.0.5.115";
         //String dstAddress="192.168.1.70";
         int dstPort=5000;
         String response = "";
@@ -636,6 +702,7 @@ String token="";
                     jsonObject.put("Ruta", Ruta[0]);
                     jsonObject.put("lat",ubicacionActual.latitude);
                     jsonObject.put("lng",ubicacionActual.longitude);
+                    jsonObject.put("Token",token);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -766,7 +833,7 @@ dibujarCamiones(s);
         //dibujar maradorcitos de camiones
 
         idcamiones= new ArrayList<>();
-
+        nombrecamiones= new ArrayList<>();
         try {
             JSONObject jsnobject = new JSONObject(s);
             JSONArray jsonArray = jsnobject.getJSONArray("Camion");
@@ -774,7 +841,8 @@ dibujarCamiones(s);
                 JSONObject explrObject = jsonArray.getJSONObject(i);
                 //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
                 idcamiones.add(explrObject.getString("idcamion"));
-                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("etiqueta")+" capacidad"+explrObject.getString("capacidad")).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
+                nombrecamiones.add(explrObject.getString("nombre"));
+                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre")+" capacidad"+explrObject.getString("capacidad")).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
             }
         }
 
