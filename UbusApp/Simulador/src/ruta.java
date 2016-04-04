@@ -26,12 +26,66 @@ public class ruta implements Runnable {
     public static ArrayList<Suscriptor> ruta602 = new ArrayList<>();
     public static ArrayList<Suscriptor> ruta500 = new ArrayList<>();
     public static ArrayList<Suscriptor> ruta396 = new ArrayList<>();
-    //300, 602, 500, 396
+    public static ArrayList<String> tokens = new ArrayList();//para llevar el registro de si alguno ya está insertado
+    public static ArrayList<String> suscripcion = new ArrayList();
+//300, 602, 500, 396
     public static double[][] puntos;
     public static ArrayList<p> interp = new ArrayList<p>();
 
     public static void addSuscriptor(Suscriptor m) {
         //to do: falta validar que no esté suscrito a ninguna otra ruta
+        if (tokens.contains(m.token)) {
+//si existe el token se buscará donde está para removerse de la lista
+//verificar su suscripcion
+            int index = tokens.indexOf(m.token);
+
+            String ruta = suscripcion.remove(index);
+
+            if (ruta.contains("142")) {
+                for (int i = 0; i < ruta142.size(); i++) {
+                    if (ruta142.get(i).token.equals(tokens.get(index))) {
+                        ruta142.remove(i);
+                        break;
+                    }
+                }
+                ruta142.remove(m.token);
+            } else if (ruta.contains("300")) {
+                for (int i = 0; i < ruta300.size(); i++) {
+                    if (ruta300.get(i).token.equals(tokens.get(index))) {
+                        ruta300.remove(i);
+                        break;
+                    }
+                }
+                ruta300.remove(m.token);
+            } else if (ruta.contains("602")) {
+                for (int i = 0; i < ruta602.size(); i++) {
+                    if (ruta602.get(i).token.equals(tokens.get(index))) {
+                        ruta602.remove(i);
+                        break;
+                    }
+                }
+                ruta602.remove(m.token);
+            } else if (ruta.contains("500")) {
+                for (int i = 0; i < ruta500.size(); i++) {
+                    if (ruta500.get(i).token.equals(tokens.get(index))) {
+                        ruta500.remove(i);
+                        break;
+                    }
+                }
+                ruta500.remove(m.token);
+            } else if (ruta.contains("396")) {
+                for (int i = 0; i < ruta396.size(); i++) {
+                    if (ruta396.get(i).token.equals(tokens.get(index))) {
+                        ruta396.remove(i);
+                        break;
+                    }
+                }
+                ruta396.remove(m.token);
+            }
+            tokens.remove(index);
+        }
+        tokens.add(m.token);
+        suscripcion.add(m.ruta);
         if (m.ruta.contains("142")) {
             ruta142.add(m);
         } else if (m.ruta.contains("300")) {
@@ -43,6 +97,11 @@ public class ruta implements Runnable {
         } else if (m.ruta.contains("396")) {
             ruta396.add(m);
         }
+        System.out.println("142 " + ruta142.size());
+        System.out.println("300 " + ruta300.size());
+        System.out.println("602 " + ruta602.size());
+        System.out.println("500 " + ruta500.size());
+        System.out.println("396" + ruta396.size());
     }
 
     public static void interpolar() {
@@ -218,16 +277,15 @@ public class ruta implements Runnable {
                 slat1 = String.valueOf(x.lat);
                 slon1 = String.valueOf(x.lng);
                 if (j == 9) {
-                    camiones += "{\"nombre\":\"El mil vueltas\",\"capacidad\":\"34/40\",\"idcamion\":\"1\",\"etiqueta\":\"bus1\",\"lat\":\""+ slat1 +"\",\"lng\":\""+slon1+"\"}";
-                }
-                else{
-    camiones += "{\"nombre\":\"El mil vueltas\",\"capacidad\":\"34/40\",\"idcamion\":\"1\",\"etiqueta\":\"bus1\",\"lat\":\""+ slat1 +"\",\"lng\":\""+slon1+"\"},";
+                    camiones += "{\"nombre\":\"El mil vueltas\",\"capacidad\":\"34/40\",\"idcamion\":\"1\",\"etiqueta\":\"bus1\",\"lat\":\"" + slat1 + "\",\"lng\":\"" + slon1 + "\"}";
+                } else {
+                    camiones += "{\"nombre\":\"El mil vueltas\",\"capacidad\":\"34/40\",\"idcamion\":\"1\",\"etiqueta\":\"bus1\",\"lat\":\"" + slat1 + "\",\"lng\":\"" + slon1 + "\"},";
                 }
                 archivo.writeBytes("<marker status=\"busy\" lat=\"" + slat1 + "\" lng=\"" + slon1 + "\" />");
                 archivo.write(salto);
             }
-            
-            camiones+="]}";
+
+            camiones += "]}";
             archivo.writeBytes("</markers>");
             archivo.close();
 
