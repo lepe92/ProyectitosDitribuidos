@@ -57,9 +57,16 @@ public class RutasMenu extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 //mandar resultado en la posicion position
+                if(position==resultado.length){
+                    //mandar al activity de mapa2
+                    Intent m = new Intent(RutasMenu.this, MapsActivity2.class);
+                    m.putExtra("coordenada",resultado);
+                    startActivity(m);
+                }
+                else{
                 Intent m = new Intent(RutasMenu.this, Mapa.class);
                 m.putExtra("coordenada",resultado[position]);
-                startActivity(m);
+                startActivity(m);}
             }
         });
     }
@@ -119,14 +126,15 @@ public class RutasMenu extends AppCompatActivity {
 
         String mensaje[]= s.split("@");
         Log.i("mensaje",mensaje.length+"");
-        String temp[]= new String[mensaje.length-1];
-        resultado= new String[mensaje.length-1];
+        String temp[]= new String[mensaje.length];
+        resultado= new String[mensaje.length-1];//resultado guarad el nombre de ruta y coordenadas
         for(int i=0; i<mensaje.length-1;i++){
             resultado[i]=mensaje[i];
             String mesa[]=mensaje[i].split("/");
             Log.i("mensaje",mesa[0]);
             temp[i]=mesa[0];
         }
+        temp[temp.length-1]="Ver todas las rutas";
         ArrayAdapter<String> itemsAdapter =
                 new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, temp);
         ls.setAdapter(itemsAdapter);

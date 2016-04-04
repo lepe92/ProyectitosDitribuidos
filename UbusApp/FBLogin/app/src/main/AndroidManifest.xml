@@ -14,9 +14,9 @@
     <!-- [START gcm_permission] -->
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
-    <!-- [END gcm_permission] -->
+    <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- [END gcm_permission] -->
     <application
         android:name=".MyApp"
         android:allowBackup="true"
@@ -62,26 +62,26 @@
         <activity
             android:name=".Mapa"
             android:label="@string/title_activity_mapa" />
-        <activity android:name=".SignUp"></activity>
-
-
+        <activity android:name=".SignUp" />
 
         <!-- [START gcm_receiver] -->
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND" >
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
                 <category android:name="com.example.eejl_.fblogin" />
             </intent-filter>
         </receiver>
         <!-- [END gcm_receiver] -->
 
+
         <!-- [START gcm_listener] -->
         <service
-            android:name="com.example.eejl_.fblogin.MyGcmListenerService"
-            android:exported="false" >
+            android:name=".MyGcmListenerService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
@@ -89,17 +89,20 @@
         <!-- [END gcm_listener] -->
         <!-- [START instanceId_listener] -->
         <service
-            android:name="com.example.eejl_.fblogin.MyInstanceIDListenerService"
+            android:name=".MyInstanceIDListenerService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID"/>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
         </service>
         <!-- [END instanceId_listener] -->
         <service
-            android:name="com.example.eejl_.fblogin.RegistrationIntentService"
-            android:exported="false">
-        </service>
+            android:name=".RegistrationIntentService"
+            android:exported="false"></service>
+
+        <activity
+            android:name=".MapsActivity2"
+            android:label="@string/title_activity_maps2"></activity>
     </application>
 
 </manifest>

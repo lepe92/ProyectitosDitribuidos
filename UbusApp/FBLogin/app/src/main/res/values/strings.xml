@@ -4,4 +4,5 @@
     <string name="app_id">536891929844110</string>
     <string name="title_activity_rutas_menu">RutasMenu</string>
     <string name="title_activity_mapa">Map</string>
+    <string name="title_activity_maps2">Map</string>
 </resources>
