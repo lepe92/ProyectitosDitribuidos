@@ -95,6 +95,7 @@ String token="";
     String provider;
     protected DataOutputStream dos;
     protected DataInputStream dis;
+    int colorcito =0;
     ArrayList<LatLng> coordList = new ArrayList<LatLng>();
 //se sustituirá por la del gps posteriormente
     protected LatLng ubicacionActual=new LatLng(20.732360000000003,-103.35151);
@@ -130,6 +131,12 @@ try {
                 Log.i("mensaje", Ruta[0]);
             Ruta[1] = "{\"Ruta\":[" + Ruta[1] + "]}";
             Log.i("mensaje", Ruta[1]);
+
+          //  Log.i("mensaje",extras.getString("color"));
+            // m.putExtra("color",colores.get(index));
+            if(extras.getInt("color")!=0){
+                colorcito= extras.getInt("color");
+            }
         }
         // Get the location manager
 
@@ -574,11 +581,16 @@ try {
             PolylineOptions polylineOptions = new PolylineOptions();
 
 // Create polyline options with existing LatLng ArrayList
-            polylineOptions.addAll(coordList);
-            polylineOptions
-                    .width(5)
-                    .color(Color.RED);
+            if(colorcito!=0) {
+                polylineOptions.addAll(coordList);
+                polylineOptions
+                        .width(5)
+                        .color(colorcito);
 
+            }else{polylineOptions.addAll(coordList);
+                polylineOptions
+                        .width(5)
+                        .color(Color.RED);}
 // Adding multiple points in map using polyline and arraylist
             mMap.addPolyline(polylineOptions);
 

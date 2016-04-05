@@ -41,6 +41,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
     private ArrayList<String> coordenada;
     private ArrayList<String> coordenada2 = new ArrayList<>();
     private ArrayList<String> polyid=new ArrayList<>();
+    private ArrayList<Integer> colores=new ArrayList<>();
     String provider;
     protected LatLng ubicacionActual = new LatLng(20.732360000000003, -103.35151);
 
@@ -203,7 +204,9 @@ dibujarMapa();
 
             PolylineOptions polylineOptions = new PolylineOptions();
                 Random rnd = new Random();
+
                 int color2 = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+                colores.add(color2);
 // Create polyline options with existing LatLng ArrayList
             polylineOptions.addAll(coordList);
             polylineOptions
@@ -227,6 +230,7 @@ dibujarMapa();
 
                 Intent m = new Intent(MapsActivity2.this, Mapa.class);
                 m.putExtra("coordenada",ruta.get(index)+"/"+coordenada2.get(index));
+                m.putExtra("color",colores.get(index));
                 startActivity(m);
             }
         });

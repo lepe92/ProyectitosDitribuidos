@@ -66,6 +66,7 @@ public class RutasMenu extends AppCompatActivity {
                 else{
                 Intent m = new Intent(RutasMenu.this, Mapa.class);
                 m.putExtra("coordenada",resultado[position]);
+                    m.putExtra("color",0);
                 startActivity(m);}
             }
         });
