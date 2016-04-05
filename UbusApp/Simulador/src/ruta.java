@@ -212,6 +212,7 @@ public class ruta implements Runnable {
                     break;
             }
         }
+        actualizarEnServidor("mapa.xml");
     }
 
     public static void write_File_mapaxml() {
@@ -245,7 +246,7 @@ public class ruta implements Runnable {
 
             archivo.writeBytes("</markers>");
             archivo.close();
-            
+
             actualizarEnServidor("mapa.xml");
         } catch (IOException e) {
             System.err.println(e.getMessage());
@@ -296,51 +297,50 @@ public class ruta implements Runnable {
             archivo.close();
 
             notificarSuscriptores(ruta142, camiones);
-            
+
             actualizarEnServidor("data.xml");
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
     }
-    
-    public static void actualizarEnServidor(String file){
-    String server = "jimenezlepe.comuv.com";
+
+    public static void actualizarEnServidor(String file) {
+        String server = "jimenezlepe.comuv.com";
         int port = 21;
         String user = "a2811468";
         String pass = "ornitorrinco8";
- 
+
         FTPClient ftpClient = new FTPClient();
         try {
- 
+
             ftpClient.connect(server, port);
             ftpClient.login(user, pass);
             ftpClient.enterLocalPassiveMode();
- 
+
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
- 
+
             // APPROACH #2: uploads second file using an OutputStream
-            File secondLocalFile = new File("C:/wamp/www/Ubus/"+file);
-            String secondRemoteFile = "public_html/Ubus/Administrador/info/"+file;
+            File secondLocalFile = new File("C:/wamp/www/Ubus/" + file);
+            String secondRemoteFile = "public_html/Ubus/Administrador/Choferes/" + file;
             InputStream inputStream = new FileInputStream(secondLocalFile);
- 
-           // ftpClient.deleteFile("public_html/Ubus/Administrador/info/data.xml);
-            
+
+            // ftpClient.deleteFile("public_html/Ubus/Administrador/info/data.xml);
             System.out.println("Start uploading file");
             OutputStream outputStream = ftpClient.storeFileStream(secondRemoteFile);
             byte[] bytesIn = new byte[4096];
             int read = 0;
- 
+
             while ((read = inputStream.read(bytesIn)) != -1) {
                 outputStream.write(bytesIn, 0, read);
             }
             inputStream.close();
             outputStream.close();
- 
+
             boolean completed = ftpClient.completePendingCommand();
             if (completed) {
                 System.out.println("The file is uploaded successfully.");
             }
- 
+
         } catch (IOException ex) {
             System.out.println("Error: " + ex.getMessage());
             ex.printStackTrace();
@@ -429,7 +429,9 @@ public class ruta implements Runnable {
 
         while (true) {
             time = (System.currentTimeMillis() - time0) / 1000;
+            //  System.out.println(time+"|"+cont);
             if (time > cont) {
+                System.out.println("Actualizando");
                 //x = interp.get(i);
                 write_File_dataxml(i);
                 //System.out.format(" %.4f  , ", x.lat);

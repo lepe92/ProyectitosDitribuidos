@@ -132,7 +132,8 @@ public class RutasMenu extends AppCompatActivity {
             resultado[i]=mensaje[i];
             String mesa[]=mensaje[i].split("/");
             Log.i("mensaje",mesa[0]);
-            temp[i]=mesa[0];
+            String temp2[]= mesa[0].split("!");
+            temp[i]=temp2[1];
         }
         temp[temp.length-1]="Ver todas las rutas";
         ArrayAdapter<String> itemsAdapter =

@@ -98,6 +98,7 @@ String token="";
     ArrayList<LatLng> coordList = new ArrayList<LatLng>();
 //se sustituirá por la del gps posteriormente
     protected LatLng ubicacionActual=new LatLng(20.732360000000003,-103.35151);
+protected  LatLng center=new LatLng(20.732360000000003,-103.35151);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,7 +115,19 @@ String token="";
         if (extras != null) {
             String temp = extras.getString("coordenada");
             Ruta = temp.split("/");
-            Log.i("mensaje", Ruta[0]);
+            String centro[]=Ruta[0].split("!");
+try {
+    JSONObject jsnobject = new JSONObject("{\"Centro\":["+centro[0]+ "]}");
+    JSONArray jsonArray = jsnobject.getJSONArray("Centro");
+    for (int i = 0; i < jsonArray.length(); i++) {
+        JSONObject explrObject = jsonArray.getJSONObject(i);
+        center= new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")));
+        //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
+    }
+}catch(JSONException e){}
+
+
+                Log.i("mensaje", Ruta[0]);
             Ruta[1] = "{\"Ruta\":[" + Ruta[1] + "]}";
             Log.i("mensaje", Ruta[1]);
         }
@@ -365,8 +378,8 @@ String token="";
         MarkerOptions m=new MarkerOptions().position(sydney).title("Mi ubicacion").draggable(true);
         //m.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bus));
         mMap.addMarker(m);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15));
-
+          //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 14));
 
 
     }
@@ -553,6 +566,9 @@ String token="";
                 JSONObject explrObject = jsonArray.getJSONObject(i);
                 coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
 
+               // if(i==jsonArray.length()/2 || i==jsonArray.length()/2 +1 || i==jsonArray.length()/2-1) {
+//                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))), 15));
+  //              }
             }
 
             PolylineOptions polylineOptions = new PolylineOptions();
@@ -674,9 +690,9 @@ String token="";
 
 
     public class ContactarSimulador extends AsyncTask<String, Void, String> {
-        String dstAddress="10.0.5.121";
+       // String dstAddress="10.0.5.121";
         //String dstAddress="10.0.5.241";
-        //String dstAddress="10.0.5.115";
+        String dstAddress="10.0.5.113";
         //String dstAddress="192.168.1.70";
         int dstPort=5000;
         String response = "";
