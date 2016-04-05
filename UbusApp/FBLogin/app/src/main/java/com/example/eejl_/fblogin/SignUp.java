@@ -7,10 +7,12 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatButton;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,14 +54,21 @@ AppCompatButton registrar;
         registrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!enombre.getText().equals("") & !ecorreo.getText().equals("") & !registrar.getText().equals("")){
+                if(!enombre.getText().equals("") & !ecorreo.getText().equals("") & isValidEmail(ecorreo.getText()) & !registrar.getText().equals("")){
                    nombre= enombre.getText().toString();
                     correo= ecorreo.getText().toString();
                     pass=epass.getText().toString();
                     actualizar();
+                }else{
+                    Toast.makeText(getApplicationContext(),"No deje ningún campo vacío\nIngrese una cuenta de correo válida", Toast.LENGTH_LONG).show();
                 }
             }
         });
+    }
+
+
+    public final static boolean isValidEmail(CharSequence target) {
+        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
 
     private void actualizar() {

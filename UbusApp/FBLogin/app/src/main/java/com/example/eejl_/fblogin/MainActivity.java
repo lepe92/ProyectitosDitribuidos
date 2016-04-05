@@ -1,21 +1,41 @@
 package com.example.eejl_.fblogin;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.Profile;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 public class MainActivity extends AppCompatActivity {
 TextView yacuenta;
+    String mail="", passw="";
+    AppCompatButton ingresar;
+    EditText email, pass;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +50,125 @@ TextView yacuenta;
                 startActivity(m);
             }
         });
+
+         email= (EditText) findViewById(R.id.input_email);
+pass= (EditText) findViewById(R.id.input_password);
+
+        ingresar = (AppCompatButton) findViewById(R.id.btn_login);
+//edittext input_email input_pass
+        ingresar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+if(!pass.getText().equals("") & !email.getText().equals("") &isValidEmail(email.getText()) ) {
+    mail= email.getText().toString();
+    passw=pass.getText().toString();
+    actualizar();
+}else{
+    Toast.makeText(getApplicationContext(), "No deje ningún campo vacío\nIngrese una cuenta de correo válida", Toast.LENGTH_LONG).show();
+}
+            }
+        });
+    }
+
+    public final static boolean isValidEmail(CharSequence target) {
+        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+    }
+
+    private void actualizar() {
+        class actualizarNombre extends AsyncTask<String, Void, String> {
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+//                loading = ProgressDialog.show(MainActivity.this, "Please Wait...", null, true, true);
+            }
+
+            @Override
+            protected String doInBackground(String... params) {
+
+                String uri = "http://jimenezlepe.comuv.com/Ubus/UbusApp/login.php";
+                OutputStream os = null;
+                InputStream is = null;
+                HttpURLConnection conn = null;
+                BufferedReader bufferedReader = null;
+                try {
+                    //constants
+                    //http://jimenezlepe.comuv.com/solicita.php
+                    URL url = new URL(uri);
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("correo", mail);
+                    jsonObject.put("pass", passw);
+
+
+                    String message = jsonObject.toString();
+
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.setReadTimeout(10000 /*milliseconds*/);
+                    conn.setConnectTimeout(15000 /* milliseconds */);
+                    conn.setRequestMethod("POST");
+                    conn.setDoInput(true);
+                    conn.setDoOutput(true);
+                    conn.setFixedLengthStreamingMode(message.getBytes().length);
+
+                    //make some HTTP header nicety
+                    conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                    conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+                    //open
+                    conn.connect();
+
+                    //setup send
+
+                    os = new BufferedOutputStream(conn.getOutputStream());
+                    os.write(message.getBytes());
+                    //clean up
+                    os.flush();
+
+                    //do somehting with response
+                    is = conn.getInputStream();
+                    bufferedReader = new BufferedReader(new InputStreamReader(is));
+
+//                    Log.i("mensaje2", macajena);
+                    //Insercion correcta
+                    String json;
+                    while ((json = bufferedReader.readLine()) != null) {
+                        Log.i("mensaje", json);
+
+                    }
+
+                    //  Toast.makeText(getApplicationContext(), is.toString(), Toast.LENGTH_LONG).show();
+                    //Log.i("respuesta", is.toString());
+                    //String contentAsString = readIt(is,len);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } finally {
+                    //clean up
+                    try {
+                        os.close();
+                        is.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    conn.disconnect();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                //         loading.dismiss();
+//                Log.i("mensaje", s);
+
+            }
+        }
+        actualizarNombre gj = new actualizarNombre();
+        gj.execute();
+
+        //Toast.makeText(getApplicationContext(),);
     }
 
     @Override
