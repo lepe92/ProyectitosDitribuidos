@@ -22,6 +22,9 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ruta implements Runnable {
 
@@ -32,6 +35,8 @@ public class ruta implements Runnable {
     public static ArrayList<Suscriptor> ruta396 = new ArrayList<>();
     public static ArrayList<String> tokens = new ArrayList();//para llevar el registro de si alguno ya está insertado
     public static ArrayList<String> suscripcion = new ArrayList();
+    
+    public static ArrayList<Camion> camiones = new ArrayList();
 //300, 602, 500, 396
     public static double[][] puntos;
     public static ArrayList<p> interp = new ArrayList<p>();
@@ -108,6 +113,50 @@ public class ruta implements Runnable {
         System.out.println("396" + ruta396.size());
     }
 
+    public static void envia2(){
+     try {
+         String mensaje="";
+            // open a connection to the site
+            URL url = new URL("http://jimenezlepe.comuv.com/Ubus/Simulador/obtenerCamiones.php");
+            URLConnection con = url.openConnection();
+            // activate the output
+            con.setDoOutput(true);
+            PrintStream ps = new PrintStream(con.getOutputStream());
+            // send your parameters to your site
+            
+            ps.print(mensaje);
+
+            // we have to get the input stream in order to actually send the request
+          InputStream n= con.getInputStream();
+         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(n));
+         String temp=""; 
+        temp=bufferedReader.readLine();
+           System.out.println(temp);
+          procesarJson(temp);
+            // close the print stream
+            ps.close();
+            } catch (MalformedURLException e1) {
+                e1.printStackTrace();
+            } catch (IOException e2) {
+                e2.printStackTrace();
+            }
+    }
+    
+    public static void procesarJson(String temp){
+    try {
+            JSONObject jsnobject = new JSONObject(temp);
+            JSONArray jsonArray = jsnobject.getJSONArray("Camion");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject explrObject = jsonArray.getJSONObject(i);
+                Camion tempo= new Camion(explrObject.getString("ruta"),explrObject.getInt("id")+"",explrObject.getString("nombre"),explrObject.getInt("capacidad")+"",explrObject.getString("chofer"));
+                camiones.add(tempo);
+            }
+            System.out.println(camiones.size());
+        } catch (JSONException e) {
+        }
+    
+    }
+    
     public static void interpolar() {
         int i, n, l;
         double s, d, dx, dy, x1, x2, y1, y2;
@@ -425,6 +474,8 @@ public class ruta implements Runnable {
         System.out.print(puntos[0][0] + " , ");
         System.out.println(puntos[0][1]);
 
+        envia2();
+        
         (new Thread(new ruta())).start();
 
         while (true) {
