@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.logging.Handler;
 
 public class SignUp extends AppCompatActivity {
 
@@ -41,6 +42,8 @@ AppCompatButton registrar;
             @Override
             public void onClick(View v) {
                 Intent m = new Intent(SignUp.this, MainActivity.class);
+                //eliminar el stack de activities
+                m.setFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(m);
             }
         });
@@ -73,7 +76,7 @@ AppCompatButton registrar;
 
     private void actualizar() {
         class actualizarNombre extends AsyncTask<String, Void, String> {
-
+Boolean muestra= false;
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
@@ -131,7 +134,14 @@ AppCompatButton registrar;
                     String json;
                     while ((json = bufferedReader.readLine()) != null) {
                         Log.i("mensaje", json);
-
+                        if(json.equals("insertado")){
+                            Intent m = new Intent(SignUp.this, RutasMenu.class);
+                            startActivity(m);
+                        }
+                        else{
+muestra= true;
+                            //Toast.makeText(getApplicationContext(),"Esa cuenta ya se encuentra registrada\nO hubo un error en el servidor", Toast.LENGTH_LONG).show();
+                        }
                     }
 
                     //  Toast.makeText(getApplicationContext(), is.toString(), Toast.LENGTH_LONG).show();
@@ -158,6 +168,9 @@ AppCompatButton registrar;
             @Override
             protected void onPostExecute(String s) {
                   super.onPostExecute(s);
+                if(muestra){
+                    Toast.makeText(getApplicationContext(),"Esa cuenta ya se encuentra registrada\nO hubo un error en el servidor", Toast.LENGTH_LONG).show();
+                }
                 //         loading.dismiss();
 //                Log.i("mensaje", s);
 

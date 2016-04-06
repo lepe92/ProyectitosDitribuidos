@@ -32,16 +32,17 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
-TextView yacuenta;
-    String mail="", passw="";
+    TextView yacuenta;
+    String mail = "", passw = "";
     AppCompatButton ingresar;
     EditText email, pass;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        yacuenta= (TextView) findViewById(R.id.link_signup);
+        yacuenta = (TextView) findViewById(R.id.link_signup);
 
         yacuenta.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,21 +52,21 @@ TextView yacuenta;
             }
         });
 
-         email= (EditText) findViewById(R.id.input_email);
-pass= (EditText) findViewById(R.id.input_password);
+        email = (EditText) findViewById(R.id.input_email);
+        pass = (EditText) findViewById(R.id.input_password);
 
         ingresar = (AppCompatButton) findViewById(R.id.btn_login);
 //edittext input_email input_pass
         ingresar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-if(!pass.getText().equals("") & !email.getText().equals("") &isValidEmail(email.getText()) ) {
-    mail= email.getText().toString();
-    passw=pass.getText().toString();
-    actualizar();
-}else{
-    Toast.makeText(getApplicationContext(), "No deje ningún campo vacío\nIngrese una cuenta de correo válida", Toast.LENGTH_LONG).show();
-}
+                if (!pass.getText().equals("") & !email.getText().equals("") & isValidEmail(email.getText())) {
+                    mail = email.getText().toString();
+                    passw = pass.getText().toString();
+                    actualizar();
+                } else {
+                    Toast.makeText(getApplicationContext(), "No deje ningún campo vacío\nIngrese una cuenta de correo válida", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -76,6 +77,7 @@ if(!pass.getText().equals("") & !email.getText().equals("") &isValidEmail(email.
 
     private void actualizar() {
         class actualizarNombre extends AsyncTask<String, Void, String> {
+            Boolean muestra = false;
 
             @Override
             protected void onPreExecute() {
@@ -133,7 +135,13 @@ if(!pass.getText().equals("") & !email.getText().equals("") &isValidEmail(email.
                     String json;
                     while ((json = bufferedReader.readLine()) != null) {
                         Log.i("mensaje", json);
-
+                        if (json.equals("logueo")) {
+                            Intent m = new Intent(MainActivity.this, RutasMenu.class);
+                            startActivity(m);
+                        } else {
+                            muestra = true;
+                            //Toast.makeText(getApplicationContext(),"Esa cuenta ya se encuentra registrada\nO hubo un error en el servidor", Toast.LENGTH_LONG).show();
+                        }
                     }
 
                     //  Toast.makeText(getApplicationContext(), is.toString(), Toast.LENGTH_LONG).show();
@@ -162,7 +170,9 @@ if(!pass.getText().equals("") & !email.getText().equals("") &isValidEmail(email.
                 super.onPostExecute(s);
                 //         loading.dismiss();
 //                Log.i("mensaje", s);
-
+                if (muestra) {
+                    Toast.makeText(getApplicationContext(), "Correo o contraseña incorrecta", Toast.LENGTH_LONG).show();
+                }
             }
         }
         actualizarNombre gj = new actualizarNombre();
@@ -196,10 +206,10 @@ if(!pass.getText().equals("") & !email.getText().equals("") &isValidEmail(email.
     @Override
     protected void onStart() {
         super.onStart();
-        Profile p= Profile.getCurrentProfile();
-        if(p!=null){
+        Profile p = Profile.getCurrentProfile();
+        if (p != null) {
             Log.d("bienvenido", p.getName());
-            Intent ventanitaRuta=  new Intent(this, RutasMenu.class);
+            Intent ventanitaRuta = new Intent(this, RutasMenu.class);
             startActivity(ventanitaRuta);
         }
     }
@@ -207,10 +217,10 @@ if(!pass.getText().equals("") & !email.getText().equals("") &isValidEmail(email.
     @Override
     protected void onRestart() {
         super.onRestart();
-        Profile p= Profile.getCurrentProfile();
-        if(p!=null){
+        Profile p = Profile.getCurrentProfile();
+        if (p != null) {
             Log.d("bienvenido", p.getName());
-            Intent ventanitaRuta=  new Intent(this, RutasMenu.class);
+            Intent ventanitaRuta = new Intent(this, RutasMenu.class);
             startActivity(ventanitaRuta);
         }
     }
