@@ -36,14 +36,14 @@ public class MainActivity extends AppCompatActivity {
     String mail = "", passw = "";
     AppCompatButton ingresar;
     EditText email, pass;
-
+    SessionManager manager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         yacuenta = (TextView) findViewById(R.id.link_signup);
-
+        manager = new SessionManager();
         yacuenta.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
                     while ((json = bufferedReader.readLine()) != null) {
                         Log.i("mensaje", json);
                         if (json.equals("logueo")) {
+                            manager.setPreferences(MainActivity.this, "status", "1");
                             Intent m = new Intent(MainActivity.this, RutasMenu.class);
                             startActivity(m);
                         } else {
@@ -212,6 +213,13 @@ public class MainActivity extends AppCompatActivity {
             Intent ventanitaRuta = new Intent(this, RutasMenu.class);
             startActivity(ventanitaRuta);
         }
+
+        String status=manager.getPreferences(MainActivity.this, "status");
+        Log.d("status",status);
+        if (status.equals("1")){
+            Intent i=new Intent(MainActivity.this,RutasMenu.class);
+            startActivity(i);
+        }
     }
 
     @Override
@@ -222,6 +230,12 @@ public class MainActivity extends AppCompatActivity {
             Log.d("bienvenido", p.getName());
             Intent ventanitaRuta = new Intent(this, RutasMenu.class);
             startActivity(ventanitaRuta);
+        }
+        String status=manager.getPreferences(MainActivity.this, "status");
+        Log.d("status",status);
+        if (status.equals("1")){
+            Intent i=new Intent(MainActivity.this,RutasMenu.class);
+            startActivity(i);
         }
     }
 }

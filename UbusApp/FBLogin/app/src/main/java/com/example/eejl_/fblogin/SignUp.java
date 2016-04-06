@@ -28,7 +28,7 @@ import java.net.URL;
 import java.util.logging.Handler;
 
 public class SignUp extends AppCompatActivity {
-
+    SessionManager manager;
     EditText enombre, ecorreo, epass;
 AppCompatButton registrar;
     String nombre, correo, pass;
@@ -36,14 +36,14 @@ AppCompatButton registrar;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
-
+        manager = new SessionManager();
         TextView t1= (TextView)findViewById(R.id.link_login);
         t1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent m = new Intent(SignUp.this, MainActivity.class);
                 //eliminar el stack de activities
-                m.setFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY);
+                m.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(m);
             }
         });
@@ -135,6 +135,8 @@ Boolean muestra= false;
                     while ((json = bufferedReader.readLine()) != null) {
                         Log.i("mensaje", json);
                         if(json.equals("insertado")){
+                            manager.setPreferences(SignUp.this, "status", "1");
+
                             Intent m = new Intent(SignUp.this, RutasMenu.class);
                             startActivity(m);
                         }
@@ -180,5 +182,27 @@ muestra= true;
         gj.execute();
 
         //Toast.makeText(getApplicationContext(),);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        String status=manager.getPreferences(SignUp.this, "status");
+        Log.d("status", status);
+        if (status.equals("1")){
+            Intent i=new Intent(SignUp.this,RutasMenu.class);
+            startActivity(i);
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        String status=manager.getPreferences(SignUp.this, "status");
+        Log.d("status", status);
+        if (status.equals("1")){
+            Intent i=new Intent(SignUp.this,RutasMenu.class);
+            startActivity(i);
+        }
     }
 }

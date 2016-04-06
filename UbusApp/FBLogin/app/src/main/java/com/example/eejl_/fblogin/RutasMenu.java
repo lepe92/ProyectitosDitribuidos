@@ -28,6 +28,8 @@ public class RutasMenu extends AppCompatActivity {
     private static final String URL = "http://jimenezlepe.comuv.com/Ubus/UbusApp/ConsultaRutas.php";
     ListView ls;
     String resultado[];
+    SessionManager manager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,11 +40,15 @@ public class RutasMenu extends AppCompatActivity {
         Button b1= (Button) findViewById(R.id.button);
 
         itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+        manager = new SessionManager();
 
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 LoginManager.getInstance().logOut();
+
+                manager.setPreferences(RutasMenu.this, "status", "0");
+
                 Intent i = new Intent(RutasMenu.this, MainActivity.class);
 // set the new task and clear flags
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
