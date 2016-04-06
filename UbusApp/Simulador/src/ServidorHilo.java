@@ -76,7 +76,60 @@ public class ServidorHilo extends Thread {
             accion = dis.readUTF();
             System.out.println(accion);
 
-            parsearJSON(accion);
+            if (accion.contains("desuscripcion@")) {
+                String temp[] = accion.split("@");
+                int m = ruta.tokens.indexOf(temp[2]);
+                ruta.suscripcion.remove(m);
+                ruta.tokens.remove(m);
+                if (temp[1].contains("142")) {
+                    for (int i = 0; i < ruta.ruta142.size(); i++) {
+                        if (ruta.ruta142.get(i).token.equals(temp[2])) {
+                            ruta.ruta142.remove(i);
+                            break;
+                        }
+                    }
+
+                } else if (temp[1].contains("300")) {
+                    for (int i = 0; i < ruta.ruta300.size(); i++) {
+                        if (ruta.ruta300.get(i).token.equals(temp[2])) {
+                            ruta.ruta300.remove(i);
+                            break;
+                        }
+                    }
+                } else if (temp[1].contains("602")) {
+                    for (int i = 0; i < ruta.ruta602.size(); i++) {
+                        if (ruta.ruta602.get(i).token.equals(temp[2])) {
+                            ruta.ruta602.remove(i);
+                            break;
+                        }
+                    }
+
+                } else if (temp[1].contains("500")) {
+                    for (int i = 0; i < ruta.ruta500.size(); i++) {
+                        if (ruta.ruta500.get(i).token.equals(temp[2])) {
+                            ruta.ruta500.remove(i);
+                            break;
+                        }
+                    }
+
+                } else if (temp[1].contains("396")) {
+                    for (int i = 0; i < ruta.ruta396.size(); i++) {
+                        if (ruta.ruta396.get(i).token.equals(temp[2])) {
+                            ruta.ruta396.remove(i);
+                            break;
+                        }
+                    }
+                }
+                System.out.println("142 " + ruta.ruta142.size());
+                System.out.println("300 " + ruta.ruta300.size());
+                System.out.println("602 " + ruta.ruta602.size());
+                System.out.println("500 " + ruta.ruta500.size());
+                System.out.println("396 " + ruta.ruta396.size());
+
+//300, 602, 500, 396,142
+            } else {
+                parsearJSON(accion);
+            }
 
             Random n = new Random();
             String respuesta = "{\"Camion\":[{\"capacidad\":\"34/40\",\"idcamion\":\"1\",\"nombre\":\"bus1\",\"lat\":" + latitud[n.nextInt(5)] + ",\"lng\":" + longitud[n.nextInt(5)] + "},{\"capacidad\":\"27/40\",\"idcamion\":\"2\",\"nombre\":\"bus2\",\"lat\":" + latitud[n.nextInt(5)] + ",\"lng\":" + longitud[n.nextInt(5)] + "}]}";
@@ -99,11 +152,6 @@ public class ServidorHilo extends Thread {
             JSONArray jsonArray = jsnobject.getJSONArray("Usuario");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject explrObject = jsonArray.getJSONObject(i);
-                //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
-                //System.out.println(explrObject.getString("Ruta"));
-                //System.out.println(explrObject.getString("lng"));
-                //System.out.println(explrObject.getString("lat"));
-                //System.out.println(explrObject.getString("Token"));
                 Suscriptor nuevo = new Suscriptor(explrObject.getString("Ruta"), explrObject.getString("lng"), explrObject.getString("lat"), explrObject.getString("Token"));
                 ruta.addSuscriptor(nuevo);
 //300, 602, 500, 396,142

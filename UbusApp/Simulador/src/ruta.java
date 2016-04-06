@@ -52,7 +52,7 @@ public class ruta implements Runnable {
                         break;
                     }
                 }
-                ruta142.remove(m.token);
+              
             } else if (ruta.contains("300")) {
                 for (int i = 0; i < ruta300.size(); i++) {
                     if (ruta300.get(i).token.equals(tokens.get(index))) {
@@ -60,7 +60,7 @@ public class ruta implements Runnable {
                         break;
                     }
                 }
-                ruta300.remove(m.token);
+               
             } else if (ruta.contains("602")) {
                 for (int i = 0; i < ruta602.size(); i++) {
                     if (ruta602.get(i).token.equals(tokens.get(index))) {
@@ -68,7 +68,7 @@ public class ruta implements Runnable {
                         break;
                     }
                 }
-                ruta602.remove(m.token);
+          
             } else if (ruta.contains("500")) {
                 for (int i = 0; i < ruta500.size(); i++) {
                     if (ruta500.get(i).token.equals(tokens.get(index))) {
@@ -76,7 +76,7 @@ public class ruta implements Runnable {
                         break;
                     }
                 }
-                ruta500.remove(m.token);
+                
             } else if (ruta.contains("396")) {
                 for (int i = 0; i < ruta396.size(); i++) {
                     if (ruta396.get(i).token.equals(tokens.get(index))) {
@@ -84,12 +84,12 @@ public class ruta implements Runnable {
                         break;
                     }
                 }
-                ruta396.remove(m.token);
+               
             }
             tokens.remove(index);
         }
         tokens.add(m.token);
-        suscripcion.add(m.ruta);
+        suscripcion.add(m.ruta); 
         if (m.ruta.contains("142")) {
             ruta142.add(m);
         } else if (m.ruta.contains("300")) {
