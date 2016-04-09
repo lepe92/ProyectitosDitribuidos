@@ -52,6 +52,8 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
     private static final String JSON_URL = "http://jimenezlepe.comuv.com/solicitajson.php";
     private static final String JSON_URL2 = "http://www.jimenezlepe.comuv.com/insertarnombre.php";
+    private static final String IP="10.0.5.113";
+
     String jsonresult;
     ListView ls;
     final Context context = this;
@@ -179,7 +181,7 @@ Button b= (Button) findViewById(R.id.button);
     public class SolicitarActualizar extends AsyncTask<Void, Void, Void> {
 
         // String dstAddress="192.168.1.78";
-        String dstAddress="10.0.5.169";
+        String dstAddress=IP;
         int dstPort=5000;
         String response = "";
 
@@ -275,7 +277,7 @@ Button b= (Button) findViewById(R.id.button);
         ProgressDialog loading;
 
         // String dstAddress="192.168.1.78";
-        String dstAddress="10.0.5.169";
+        String dstAddress=IP;
         int dstPort=5000;
         String response = "";
 
@@ -500,7 +502,7 @@ Button b= (Button) findViewById(R.id.button);
         ProgressDialog loading;
 
         // String dstAddress="192.168.1.78";
-        String dstAddress="10.0.5.169";
+        String dstAddress=IP;
         int dstPort=5000;
         String response = "";
 

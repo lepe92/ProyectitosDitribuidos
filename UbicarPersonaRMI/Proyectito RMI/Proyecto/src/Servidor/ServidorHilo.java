@@ -1,58 +1,56 @@
 package Servidor;
 
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URL;
-import java.rmi.*;
-import java.rmi.server.*;
+import java.rmi.Naming;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class AddServerImpl extends UnicastRemoteObject implements AddServerIntf
-{
-    public AddServerImpl() throws RemoteException { }
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ *
+ * @author edwin
+ */
+public class ServidorHilo extends Thread {
     
-    public String mensaje(String msj) throws RemoteException
-    {String respuesta="";
-          if (msj.contains(",\"opcionactualizar\":\"1\"")) {
-                //System.out.println(accion);
-                String cad = msj.replace(",\"opcionactualizar\":\"1\"", "");
-                // if (accion.equals("hola")) {
-                //System.out.println("cliente " + this.socket + "dice " + cad);
-                respuesta = actualizarNombre(cad);
-                //cad es la cadena en json para mandar a php "http://www.jimenezlepe.comuv.com/insertarnombre.php";
-                //}
-            } else if (msj.equals("solicitaJSON")) {
-                //System.out.println("cliente " + this.socket + "dice " + accion);
-                respuesta = solicitarJSON();
-                //cad es la cadena en json para mandar a php "http://www.jimenezlepe.comuv.com/insertarnombre.php";
-            } else if (msj.contains(",\"solicitapersona\":\"solicitapersona\"")) {
-                //System.out.println(accion);
-                String cad = msj.replace(",\"solicitapersona\":\"solicitapersona\"", "");
-                // if (accion.equals("hola")) {
-                //System.out.println("cliente " + this.socket + "dice " + cad);
-                respuesta = solicitarPersona(cad);
-                
-                //}
-            } else {
-    try {
-        //inserción
-        respuesta = insertar(msj);
-    } catch (IOException ex) {
-        Logger.getLogger(AddServerImpl.class.getName()).log(Level.SEVERE, null, ex);
+    private Socket socket;
+    private DataOutputStream dos;
+    private DataInputStream dis;
+    private int idSessio;
+    
+    public ServidorHilo(Socket socket) {
+        this.socket = socket;
+        
+        try {
+            dos = new DataOutputStream(socket.getOutputStream());
+            dis = new DataInputStream(socket.getInputStream());
+        } catch (IOException ex) {
+            Logger.getLogger(ServidorHilo.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-                //System.out.println("Cliente " + this.socket + " dice" + accion);
-                if (respuesta == null) {
-                 respuesta="nada";
-                }
-            }
-       return respuesta;
+    
+    public void desconnectar() {
+        try {
+            socket.close();
+        } catch (IOException ex) {
+            Logger.getLogger(ServidorHilo.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public String actualizarNombre(String envio) {
@@ -99,9 +97,9 @@ public class AddServerImpl extends UnicastRemoteObject implements AddServerIntf
             }
             response = "insertado";
         } catch (MalformedURLException ex) {
-            Logger.getLogger(AddServerImpl.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ServidorHilo.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(AddServerImpl.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ServidorHilo.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return response;
@@ -213,4 +211,68 @@ public class AddServerImpl extends UnicastRemoteObject implements AddServerIntf
         // Log.i("mensaje2",macajena);
     }
     
+    @Override
+    public void run() {
+        String accion="";
+        try
+        {   // URL :  protocolo://maquina:host/nombreDelServicio
+            String addServerURL = "rmi://10.0.5.121:1099/AddServer";
+            
+            AddServerIntf addServerIntf = (AddServerIntf)Naming.lookup(addServerURL);
+            
+            accion = dis.readUTF();
+            
+            String response=addServerIntf.mensaje(accion);
+            dos.writeUTF(response);
+            System.out.println("El mensaje es : " + response);
+            
+        }catch(Exception e){System.err.println("Exception: " + e.getMessage());}
+        desconnectar();
+        /*
+        String accion = "";
+        
+        try {
+            accion = dis.readUTF();
+            System.out.println(accion);
+            if (accion.contains(",\"opcionactualizar\":\"1\"")) {
+                //System.out.println(accion);
+                String cad = accion.replace(",\"opcionactualizar\":\"1\"", "");
+                // if (accion.equals("hola")) {
+                System.out.println("cliente " + this.socket + "dice " + cad);
+                String respuesta = actualizarNombre(cad);
+                //cad es la cadena en json para mandar a php "http://www.jimenezlepe.comuv.com/insertarnombre.php";
+
+                dos.writeUTF(respuesta);
+                //}
+            } else if (accion.equals("solicitaJSON")) {
+                System.out.println("cliente " + this.socket + "dice " + accion);
+                String respuesta = solicitarJSON();
+                //cad es la cadena en json para mandar a php "http://www.jimenezlepe.comuv.com/insertarnombre.php";
+
+                dos.writeUTF(respuesta);
+            } else if (accion.contains(",\"solicitapersona\":\"solicitapersona\"")) {
+                //System.out.println(accion);
+                String cad = accion.replace(",\"solicitapersona\":\"solicitapersona\"", "");
+                // if (accion.equals("hola")) {
+                System.out.println("cliente " + this.socket + "dice " + cad);
+                String respuesta = solicitarPersona(cad);
+                dos.writeUTF(respuesta);
+                //}
+            } else {
+                //inserción
+                String respuesta = insertar(accion);
+                System.out.println("Cliente " + this.socket + " dice" + accion);
+                if (respuesta != null) {
+                    dos.writeUTF(respuesta);
+                } else {
+                    dos.writeUTF("nada");
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(ServidorHilo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        desconnectar();
+        */
+    }
 }
