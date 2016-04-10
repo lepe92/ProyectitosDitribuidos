@@ -11,7 +11,7 @@ public class AddServer
         {
 
 //para cuando no se puede conectar
-           System.setProperty("java.rmi.server.hostname","10.0.5.121");
+           System.setProperty("java.rmi.server.hostname","10.0.5.113");
 
             AddServerImpl addServerImpl = new AddServerImpl();
             LocateRegistry.createRegistry(1099);

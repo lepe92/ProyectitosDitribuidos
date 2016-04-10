@@ -216,7 +216,7 @@ public class ServidorHilo extends Thread {
         String accion="";
         try
         {   // URL :  protocolo://maquina:host/nombreDelServicio
-            String addServerURL = "rmi://10.0.5.121:1099/AddServer";
+            String addServerURL = "rmi://10.0.5.113:1099/AddServer";
             
             AddServerIntf addServerIntf = (AddServerIntf)Naming.lookup(addServerURL);
             

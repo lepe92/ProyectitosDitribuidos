@@ -48,6 +48,9 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
     private static final String JSON_URL = "http://jimenezlepe.comuv.com/solicitajson.php";
     private static final String JSON_URL2 = "http://www.jimenezlepe.comuv.com/insertarnombre.php";
+
+    private static final String JSON_URL11 = "http://distribuidos.net23.net/solicitajson.php";
+    private static final String JSON_URL22 = "http://distribuidos.net23.net/insertarnombre.php";
     String jsonresult;
     ListView ls;
     final Context context = this;
@@ -57,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_ENABLE_BT = 1;
     String macpropia, macajena, nombred, nombre;
     int rssi1;
+    boolean servidor2=false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +79,11 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(MainActivity.this, dondeEsta.class);
                 String strName = ls.getItemAtPosition(position).toString();
                 i.putExtra("nombre", strName);
+                if(servidor2){
+                i.putExtra("url", "http://distribuidos.net23.net/consultaubicacion.php");}
+                else{
+                    i.putExtra("url", "http://jimenezlepe.comuv.com/consultaubicacion.php");
+                }
                 startActivity(i);
 
 
@@ -85,7 +95,11 @@ Button b= (Button) findViewById(R.id.button);
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getJSON(JSON_URL);
+                if(servidor2){
+                    getJSON(JSON_URL11);
+                }
+                else{
+                getJSON(JSON_URL);}
             }
         });
 
@@ -175,12 +189,12 @@ Button b= (Button) findViewById(R.id.button);
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-//                loading = ProgressDialog.show(MainActivity.this, "Please Wait...", null, true, true);
+                loading = ProgressDialog.show(MainActivity.this, "Contactando servidor 1...", null, true, true);
             }
 
             @Override
             protected String doInBackground(String... params) {
-
+String respuesta="";
                 String uri = params[0];
                 OutputStream os = null;
                 InputStream is = null;
@@ -235,11 +249,6 @@ Button b= (Button) findViewById(R.id.button);
                     //  Toast.makeText(getApplicationContext(), is.toString(), Toast.LENGTH_LONG).show();
                     //Log.i("respuesta", is.toString());
                     //String contentAsString = readIt(is,len);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } finally {
                     //clean up
                     try {
                         os.close();
@@ -249,17 +258,31 @@ Button b= (Button) findViewById(R.id.button);
                     }
 
                     conn.disconnect();
+                } catch (IOException e) {
+                    respuesta="ERROR";
+                    //Toast.makeText(getApplicationContext(),"Contactando segundo servidor.",Toast.LENGTH_LONG).show();
+                    return respuesta;
+                    //e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                return null;
+
+
+                return respuesta;
             }
 
             @Override
             protected void onPostExecute(String s) {
-              //  super.onPostExecute(s);
-       //         loading.dismiss();
+                super.onPostExecute(s);
+                loading.dismiss();
 //                Log.i("mensaje", s);
-
-                getJSON(JSON_URL);
+//si falla que obtenga el json de la url 2
+                if(s.equals("")){
+                getJSON(JSON_URL);}
+                else{ //Toast.makeText(getApplicationContext(),"Contactando segundo servidor.",Toast.LENGTH_LONG).show();
+                    actualizar2(JSON_URL22);
+                servidor2=true;
+                }
             }
         }
         actualizarNombre gj = new actualizarNombre();
@@ -268,6 +291,110 @@ Button b= (Button) findViewById(R.id.button);
         //Toast.makeText(getApplicationContext(),);
     }
 
+    private void actualizar2(String url) {
+        class actualizarNombre2 extends AsyncTask<String, Void, String> {
+            ProgressDialog loading;
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                loading = ProgressDialog.show(MainActivity.this, "Contactando servidor 2...", null, true, true);
+            }
+
+            @Override
+            protected String doInBackground(String... params) {
+                String respuesta="";
+                String uri = params[0];
+                OutputStream os = null;
+                InputStream is = null;
+                HttpURLConnection conn = null;
+                BufferedReader bufferedReader = null;
+                try {
+                    //constants
+                    //http://jimenezlepe.comuv.com/solicita.php
+                    URL url = new URL(uri);
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("nombre", nombre);
+                    jsonObject.put("nombred", nombred);
+                    jsonObject.put("mac", macpropia);
+                    //jsonObject.put("rssi", rssi1);
+
+                    String message = jsonObject.toString();
+
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.setReadTimeout(10000 /*milliseconds*/);
+                    conn.setConnectTimeout(15000 /* milliseconds */);
+                    conn.setRequestMethod("POST");
+                    conn.setDoInput(true);
+                    conn.setDoOutput(true);
+                    conn.setFixedLengthStreamingMode(message.getBytes().length);
+
+                    //make some HTTP header nicety
+                    conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                    conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+                    //open
+                    conn.connect();
+
+                    //setup send
+
+                    os = new BufferedOutputStream(conn.getOutputStream());
+                    os.write(message.getBytes());
+                    //clean up
+                    os.flush();
+
+                    //do somehting with response
+                    is = conn.getInputStream();
+                    bufferedReader = new BufferedReader(new InputStreamReader(is));
+
+//                    Log.i("mensaje2", macajena);
+                    //Insercion correcta
+                    String json;
+                    while ((json = bufferedReader.readLine()) != null) {
+                        Log.i("mensaje", json);
+
+                    }
+                    try {
+                        os.close();
+                        is.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    conn.disconnect();
+                    //  Toast.makeText(getApplicationContext(), is.toString(), Toast.LENGTH_LONG).show();
+                    //Log.i("respuesta", is.toString());
+                    //String contentAsString = readIt(is,len);
+                } catch (IOException e) {
+                    respuesta="ERROR";
+                    return respuesta;
+                    //e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return respuesta;
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                  super.onPostExecute(s);
+                loading.dismiss();
+                Log.i("mensaje", s);
+//si falla que obtenga el json de la url 2
+                if(s.equals("")){
+                    //exitoso
+                    getJSON(JSON_URL11);
+                    }
+                else{ //toast error
+                Toast.makeText(getApplicationContext(),"Tenemos problemas técnicos, vuelva en un instante por favor.", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+        actualizarNombre2 gj = new actualizarNombre2();
+        gj.execute(url);
+
+        //Toast.makeText(getApplicationContext(),);
+    }
 
     private void getJSON(String url) {
         class GetJSON extends AsyncTask<String, Void, String> {
@@ -276,7 +403,7 @@ Button b= (Button) findViewById(R.id.button);
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                loading = ProgressDialog.show(MainActivity.this, "Please Wait...", null, true, true);
+                loading = ProgressDialog.show(MainActivity.this, "Obteniendo lista de dispositivos...", null, true, true);
             }
 
             @Override
@@ -320,6 +447,17 @@ Button b= (Button) findViewById(R.id.button);
         //Toast.makeText(getApplicationContext(),);
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+       // servidor2=false;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
 
     public void procesarResultado() {
         Toast.makeText(getApplicationContext(), jsonresult, Toast.LENGTH_LONG).show();
@@ -356,7 +494,12 @@ Button b= (Button) findViewById(R.id.button);
                 try {
                     //constants
                     //http://jimenezlepe.comuv.com/solicita.php
-                    URL url = new URL("http://jimenezlepe.comuv.com/solicita.php");
+                    URL url;
+                    if(servidor2){
+                        url = new URL("http://distribuidos.net23.net/solicita.php");
+                    }
+                    else{
+                    url = new URL("http://jimenezlepe.comuv.com/solicita.php");}
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("macd", macajena);
                     jsonObject.put("macp", macpropia);
@@ -399,16 +542,7 @@ Button b= (Button) findViewById(R.id.button);
                         i.putExtra("opciones",json);
                         startActivity(i);
                     }
-
-                    //  Toast.makeText(getApplicationContext(), is.toString(), Toast.LENGTH_LONG).show();
-                    //Log.i("respuesta", is.toString());
-                    //String contentAsString = readIt(is,len);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } finally {
-                    //clean up
+//clean up
                     try {
                         os.close();
                         is.close();
@@ -417,7 +551,16 @@ Button b= (Button) findViewById(R.id.button);
                     }
 
                     conn.disconnect();
+                    //  Toast.makeText(getApplicationContext(), is.toString(), Toast.LENGTH_LONG).show();
+                    //Log.i("respuesta", is.toString());
+                    //String contentAsString = readIt(is,len);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+
+
             }
         }).start();
     }
