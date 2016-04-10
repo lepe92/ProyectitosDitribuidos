@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpRetryException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,66 +23,85 @@ import org.omg.CORBA.ORB;
  *
  * @author ilsejazmingomezperez
  */
-public class HelloServant extends HelloApp.HelloPOA{
+public class HelloServant extends HelloApp.HelloPOA {
 
-    private String massage="\n Hello world\n";
+    private boolean servidor2 = false;
+    private String massage = "\n Hello world\n";
     private ORB orb; // ORB (Object Request Broker)
 
-    
-    public void setORB(ORB orb_val){
-        orb=orb_val;
+    public void setORB(ORB orb_val) {
+        orb = orb_val;
+    }
+
+    public static boolean exists(String URLName) {
+
+        try {
+            HttpURLConnection.setFollowRedirects(false);
+            // note : you may also need
+            // HttpURLConnection.setInstanceFollowRedirects(false)
+            HttpURLConnection con = (HttpURLConnection) new URL(URLName)
+                    .openConnection();
+            con.setRequestMethod("HEAD");
+            return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
     public String sayHello(String msj) {
-String respuesta="";        
+
+        servidor2 = !exists("http://jimenezlepe.comuv.com/default.php");
+
+        String respuesta = "";
 //aqui se hará la machaaca
         //EN LUGAR DE ACCION ES msj
         //en lugar de writeUTF usaremos return respuesta
-         if (msj.contains(",\"opcionactualizar\":\"1\"")) {
-                //System.out.println(accion);
-                String cad = msj.replace(",\"opcionactualizar\":\"1\"", "");
-                // if (accion.equals("hola")) {
-                //System.out.println("cliente " + this.socket + "dice " + cad);
-                respuesta = actualizarNombre(cad);
-                //cad es la cadena en json para mandar a php "http://www.jimenezlepe.comuv.com/insertarnombre.php";
-                //}
-            } else if (msj.equals("solicitaJSON")) {
-                //System.out.println("cliente " + this.socket + "dice " + accion);
-                respuesta = solicitarJSON();
-                //cad es la cadena en json para mandar a php "http://www.jimenezlepe.comuv.com/insertarnombre.php";
-            } else if (msj.contains(",\"solicitapersona\":\"solicitapersona\"")) {
-                //System.out.println(accion);
-                String cad = msj.replace(",\"solicitapersona\":\"solicitapersona\"", "");
-                // if (accion.equals("hola")) {
-                //System.out.println("cliente " + this.socket + "dice " + cad);
-                respuesta = solicitarPersona(cad);
-                
-                //}
-            } else {
-    try {
-        //inserción
-        respuesta = insertar(msj);
-    } catch (IOException ex) {
-        Logger.getLogger(HelloServant.class.getName()).log(Level.SEVERE, null, ex);
-    }
-                //System.out.println("Cliente " + this.socket + " dice" + accion);
-                if (respuesta == null) {
-                 respuesta="nada";
-                }
+        if (msj.contains(",\"opcionactualizar\":\"1\"")) {
+            //System.out.println(accion);
+            String cad = msj.replace(",\"opcionactualizar\":\"1\"", "");
+            // if (accion.equals("hola")) {
+            //System.out.println("cliente " + this.socket + "dice " + cad);
+            respuesta = actualizarNombre(cad);
+            //cad es la cadena en json para mandar a php "http://www.jimenezlepe.comuv.com/insertarnombre.php";
+            //}
+        } else if (msj.equals("solicitaJSON")) {
+            //System.out.println("cliente " + this.socket + "dice " + accion);
+            respuesta = solicitarJSON();
+            //cad es la cadena en json para mandar a php "http://www.jimenezlepe.comuv.com/insertarnombre.php";
+        } else if (msj.contains(",\"solicitapersona\":\"solicitapersona\"")) {
+            //System.out.println(accion);
+            String cad = msj.replace(",\"solicitapersona\":\"solicitapersona\"", "");
+            // if (accion.equals("hola")) {
+            //System.out.println("cliente " + this.socket + "dice " + cad);
+            respuesta = solicitarPersona(cad);
+
+            //}
+        } else {
+            try {
+                //inserción
+                respuesta = insertar(msj);
+            } catch (IOException ex) {
+                Logger.getLogger(HelloServant.class.getName()).log(Level.SEVERE, null, ex);
             }
-       return respuesta;
+            //System.out.println("Cliente " + this.socket + " dice" + accion);
+            if (respuesta == null) {
+                respuesta = "nada";
+            }
+        }
+        return respuesta;
     }
 
-      public String actualizarNombre(String envio) {
+    /*  public String actualizarNombre(String envio) {
         String response = "";
         OutputStream os = null;
         InputStream is = null;
         HttpURLConnection conn = null;
         BufferedReader bufferedReader = null;
-        
+
         try {
-            
+
             String message = envio;
             URL url = new URL("http://www.jimenezlepe.comuv.com/insertarnombre.php");
             conn = (HttpURLConnection) url.openConnection();
@@ -97,7 +117,7 @@ String respuesta="";
             //open
             conn.connect();
 
-                    //setup send
+            //setup send
             os = new BufferedOutputStream(conn.getOutputStream());
             os.write(message.getBytes());
             //clean up
@@ -113,7 +133,7 @@ String respuesta="";
             while ((json = bufferedReader.readLine()) != null) {
                 // Log.i("mensaje", json);
                 System.out.println("Json " + json);
-                
+
             }
             response = "insertado";
         } catch (MalformedURLException ex) {
@@ -121,39 +141,39 @@ String respuesta="";
         } catch (IOException ex) {
             Logger.getLogger(HelloServant.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return response;
     }
-    
+
     public String solicitarJSON() {
-        
+
         BufferedReader bufferedReader = null;
         try {
             URL url = new URL("http://jimenezlepe.comuv.com/solicitajson.php");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             StringBuilder sb = new StringBuilder();
-            
+
             bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            
+
             String json;
             while ((json = bufferedReader.readLine()) != null) {
                 sb.append(json + "\n");
             }
-            
+
             return sb.toString().trim();
-            
+
         } catch (Exception e) {
             return null;
         }
-        
+
     }
-    
+
     public String solicitarPersona(String message) {
         OutputStream os = null;
         BufferedReader bufferedReader = null;
         try {
             URL url = new URL("http://jimenezlepe.comuv.com/consultaubicacion.php");
-            
+
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con = (HttpURLConnection) url.openConnection();
             con.setReadTimeout(10000);
@@ -170,37 +190,37 @@ String respuesta="";
             //open
             con.connect();
 
-                    //setup send
+            //setup send
             os = new BufferedOutputStream(con.getOutputStream());
             os.write(message.getBytes());
             //clean up
             os.flush();
-            
+
             StringBuilder sb = new StringBuilder();
-            
+
             bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            
+
             String json;
             while ((json = bufferedReader.readLine()) != null) {
                 sb.append(json + "\n");
             }
-            
+
             return sb.toString().trim();
-            
+
         } catch (Exception e) {
             return null;
         }
-        
+
     }
-        //solicitar persona "http://jimenezlepe.comuv.com/consultaubicacion.php";
-    
+    //solicitar persona "http://jimenezlepe.comuv.com/consultaubicacion.php";
+
     public String insertar(String cad) throws MalformedURLException, IOException {
         OutputStream os = null;
         InputStream is = null;
         HttpURLConnection conn = null;
         BufferedReader bufferedReader = null;
         URL url = new URL("http://jimenezlepe.comuv.com/solicita.php");
-        
+
         conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(10000);
         conn.setConnectTimeout(15000);
@@ -208,14 +228,14 @@ String respuesta="";
         conn.setDoInput(true);
         conn.setDoOutput(true);
         conn.setFixedLengthStreamingMode(cad.getBytes().length);
-        
+
         conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
         conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
 
         //open
         conn.connect();
 
-                    //setup send
+        //setup send
         os = new BufferedOutputStream(conn.getOutputStream());
         os.write(cad.getBytes());
         //clean up
@@ -224,18 +244,202 @@ String respuesta="";
         //do somehting with response
         is = conn.getInputStream();
         bufferedReader = new BufferedReader(new InputStreamReader(is));
-        
+
         String response = bufferedReader.readLine();
         System.out.println(response);
         return response;
         // Log.i("mensaje2",macajena);
     }
-    
-    
+
+    */
     @Override
     public void shutdown() {
-     orb.shutdown(false);
+        orb.shutdown(false);
     }
     
-    
+    public String actualizarNombre(String envio) {
+        String response = "";
+        OutputStream os = null;
+        InputStream is = null;
+        HttpURLConnection conn = null;
+        BufferedReader bufferedReader = null;
+
+        try {
+
+            String message = envio;
+            URL url;
+            if (!servidor2) {
+                //temporal solo para que jale con el segundo servidor
+                url = new URL("http://www.jimenezlepe.comuv.com/insertarnombre.php");
+            } else {
+                url = new URL("http://www.distribuidos.net23.net/insertarnombre.php");
+            }
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(10000);
+            conn.setConnectTimeout(15000);
+            conn.setRequestMethod("POST");
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+            conn.setFixedLengthStreamingMode(message.getBytes().length);
+            conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+            conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+            //open
+            conn.connect();
+
+            //setup send
+            os = new BufferedOutputStream(conn.getOutputStream());
+            os.write(message.getBytes());
+            //clean up
+            os.flush();
+
+            //do somehting with response
+            is = conn.getInputStream();
+
+            bufferedReader = new BufferedReader(new InputStreamReader(is));
+
+//                    Log.i("mensaje2", macajena);
+            //Insercion correcta
+            String json;
+
+            while ((json = bufferedReader.readLine()) != null) {
+                // Log.i("mensaje", json);
+                System.out.println("Json " + json);
+
+            }
+            response = "insertado";
+        } catch (HttpRetryException e) {
+            System.out.println("el servidor no está disponible");
+            response = "ERROR";
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(HelloServant.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(HelloServant.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return response;
+    }
+
+    public void setServidor2(boolean valor) {
+        servidor2 = valor;
+    }
+
+    public String solicitarJSON() {
+        System.out.println("valor de servidor 2" + servidor2);
+        BufferedReader bufferedReader = null;
+        try {
+            URL url;
+            if (!servidor2) {
+                url = new URL("http://jimenezlepe.comuv.com/solicitajson.php");
+            } else {
+                url = new URL("http://distribuidos.net23.net/solicitajson.php");
+            }
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            StringBuilder sb = new StringBuilder();
+
+            bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+
+            String json;
+            while ((json = bufferedReader.readLine()) != null) {
+                sb.append(json + "\n");
+            }
+
+            return sb.toString().trim();
+
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
+
+    public String solicitarPersona(String message) {
+        OutputStream os = null;
+        BufferedReader bufferedReader = null;
+        try {
+            URL url;
+            if (!servidor2) {
+                url = new URL("http://jimenezlepe.comuv.com/consultaubicacion.php");
+            } else {
+                url = new URL("http://distribuidos.net23.net/consultaubicacion.php");
+            }
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con = (HttpURLConnection) url.openConnection();
+            con.setReadTimeout(10000);
+            con.setConnectTimeout(15000);
+            con.setRequestMethod("POST");
+            con.setDoInput(true);
+            con.setDoOutput(true);
+            con.setFixedLengthStreamingMode(message.getBytes().length);
+
+            //make some HTTP header nicety
+            con.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+            con.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+            //open
+            con.connect();
+
+            //setup send
+            os = new BufferedOutputStream(con.getOutputStream());
+            os.write(message.getBytes());
+            //clean up
+            os.flush();
+
+            StringBuilder sb = new StringBuilder();
+
+            bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+
+            String json;
+            while ((json = bufferedReader.readLine()) != null) {
+                sb.append(json + "\n");
+            }
+
+            return sb.toString().trim();
+
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
+    //solicitar persona "http://jimenezlepe.comuv.com/consultaubicacion.php";
+
+    public String insertar(String cad) throws MalformedURLException, IOException {
+        OutputStream os = null;
+        InputStream is = null;
+        HttpURLConnection conn = null;
+        BufferedReader bufferedReader = null;
+        URL url;
+        if (!servidor2) {
+            url = new URL("http://jimenezlepe.comuv.com/solicita.php");
+        } else {
+            url = new URL("http://distribuidos.net23.net/solicita.php");
+        }
+        conn = (HttpURLConnection) url.openConnection();
+        conn.setReadTimeout(10000);
+        conn.setConnectTimeout(15000);
+        conn.setRequestMethod("POST");
+        conn.setDoInput(true);
+        conn.setDoOutput(true);
+        conn.setFixedLengthStreamingMode(cad.getBytes().length);
+
+        conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+        conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+        //open
+        conn.connect();
+
+        //setup send
+        os = new BufferedOutputStream(conn.getOutputStream());
+        os.write(cad.getBytes());
+        //clean up
+        os.flush();
+
+        //do somehting with response
+        is = conn.getInputStream();
+        bufferedReader = new BufferedReader(new InputStreamReader(is));
+
+        String response = bufferedReader.readLine();
+        System.out.println(response);
+        return response;
+        // Log.i("mensaje2",macajena);
+    }
 }

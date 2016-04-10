@@ -224,8 +224,10 @@ private static final String IP="10.0.5.113";
            String cad="";
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject m = arr.getJSONObject(i);
-                cad+= m.getString("nombre")+" estuvo en "+m.getString("ubicacion") +"en la fecha "+m.getString("fecha");
-                //Toast.makeText(getApplicationContext(),arr.getString(i),Toast.LENGTH_LONG).show();
+                if(m.getString("ubicacion").equals("null")){cad="No sabemos donde está";}
+                else {
+                    cad += m.getString("nombre") + " estuvo en " + m.getString("ubicacion") + "en la fecha " + m.getString("fecha");
+                }//Toast.makeText(getApplicationContext(),arr.getString(i),Toast.LENGTH_LONG).show();
                 Log.i("mensaje", m.getString("nombre"));
             }
             t1.setText(cad);
