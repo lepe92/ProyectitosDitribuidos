@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -25,11 +26,34 @@ import org.apache.commons.net.ftp.FTPClient;
  * @author eejl_
  */
 public class ContactarServidor extends Thread {
-
-    public ContactarServidor() {
+String envio1;
+String envio2;
+String envio3;
+String envio4;
+String envio5;
+String data1;
+String data2;
+String data3;
+String data4;
+String data5;
+    public ContactarServidor(String envio1, String data1,
+            String envio2, String data2,
+            String envio3, String data3,
+            String envio4, String data4,
+            String envio5, String data5) {
+        this.envio1=envio1;
+        this.envio2=envio2;
+        this.envio3=envio3;
+        this.envio4=envio4;
+        this.envio5=envio5;
+        this.data1=data1;
+        this.data2=data2;
+        this.data3=data3;
+        this.data4=data4;
+        this.data5=data5;
     }
 
-    public void actualizarEnServidor(String file) {
+  public void actualizarEnServidor(String envio, String dataXML) {
         String server = "jimenezlepe.comuv.com";
         int port = 21;
         String user = "a2811468";
@@ -45,18 +69,17 @@ public class ContactarServidor extends Thread {
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
 
             // APPROACH #2: uploads second file using an OutputStream
-            File secondLocalFile = new File("C:/wamp/www/Ubus/" + file);
+            //File secondLocalFile = new File("C:/wamp/www/Ubus/" + file);
             //FileChannel channel = new RandomAccessFile(secondLocalFile, "rw").getChannel();
             //FileLock lock = channel.tryLock();
 
-            
                 //System.out.println("bloqueo por parte del ftp "+lock.isValid());
 
                 // String secondRemoteFile = "public_html/Ubus/Administrador/Choferes/" + file;
-                String secondRemoteFile = "public_html/prueba/mapas/" + file;
+                String secondRemoteFile = "public_html/prueba/mapas/" +dataXML;
                 boolean bandera = true;
 
-                InputStream inputStream = new FileInputStream(secondLocalFile);
+                //InputStream inputStream = new FileInputStream(secondLocalFile);
 
                 // ftpClient.deleteFile("public_html/Ubus/Administrador/info/data.xml);
                 //System.out.println("Start uploading file");
@@ -64,21 +87,26 @@ public class ContactarServidor extends Thread {
                 byte[] bytesIn = new byte[4096];
                 int read = 0;
 
-                while ((read = inputStream.read(bytesIn)) != -1) {
-                    outputStream.write(bytesIn, 0, read);
-                }
-                inputStream.close();
+                //while ((read = inputStream.read(bytesIn)) != -1) {
+                  //  outputStream.write(bytesIn, 0, read);
+                //}
+                //inputStream.close();
+                
+                final PrintStream printStream = new PrintStream(outputStream);
+                printStream.print(envio);
+                printStream.close();
+                
                 outputStream.close();
 
                 // lock.release();
                 // channel.close();
                 boolean completed = ftpClient.completePendingCommand();
                 if (completed) {
-                    System.out.println((char) 27 + "[34;43mThe file is uploaded successfully. " + file);
+                    System.out.println((char) 27 + "[34;43mThe file is uploaded successfully. " + dataXML +"|"+envio);
 //System.out.println("The file is uploaded successfully. " + file);
                 }
            
-           // channel.close();
+         
             
             //   lock.release();
             //  channel.close();
@@ -100,7 +128,12 @@ public class ContactarServidor extends Thread {
 
     @Override
     public void run() {
-
+        actualizarEnServidor(envio1, data1);
+        actualizarEnServidor(envio2, data2);
+        actualizarEnServidor(envio3, data3);
+        actualizarEnServidor(envio4, data4);
+        actualizarEnServidor(envio5, data5);
+/*
         // System.out.println("Enviando data25");               
         actualizarEnServidor("data25.xml");
         // System.out.println("Enviando data142");               
@@ -111,6 +144,6 @@ public class ContactarServidor extends Thread {
         actualizarEnServidor("data500.xml");
         // System.out.println("Enviando data602");               
         actualizarEnServidor("data602.xml");
-
+*/
     }
 }

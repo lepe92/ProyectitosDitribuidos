@@ -25,6 +25,7 @@ public abstract class Ruta extends Thread {
     public String filePathMapaxml;
     public String filePathDataxml;
     public static int turno;
+    public String envio;
     public String dataXML;
     public int numRuta, numCamiones;
     public final String pathPrincipal = "C:/wamp/www/Ubus/";
@@ -81,7 +82,7 @@ public abstract class Ruta extends Thread {
                 // channel.close();
                 boolean completed = ftpClient.completePendingCommand();
                 if (completed) {
-                    System.out.println((char) 27 + "[34;43mThe file is uploaded successfully. " + dataXML);
+                    System.out.println((char) 27 + "[34;43mThe file is uploaded successfully. " + dataXML +"|"+envio);
 //System.out.println("The file is uploaded successfully. " + file);
                 }
            
@@ -271,6 +272,8 @@ public abstract class Ruta extends Thread {
 
             archivo.writeBytes("</markers>");
             archivo.close();
+            
+            
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
@@ -296,11 +299,11 @@ public abstract class Ruta extends Thread {
         salto[1] = '\n';
 
         try {
-String envio="";
+            envio="";
             archivo = new RandomAccessFile(f1, "rw");
             FileChannel channel = archivo.getChannel();
             FileLock lock = channel.lock();
-           envio="<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+            envio="<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
             archivo.writeBytes("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
             archivo.write(salto);
             envio+="<markers>";
@@ -362,7 +365,7 @@ String envio="";
             // Close the file
             channel.close();
             archivo.close();     
-         
+         //actualizarEnServidor(envio);
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

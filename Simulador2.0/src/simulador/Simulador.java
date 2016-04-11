@@ -68,7 +68,12 @@ public class Simulador implements Runnable {
 
         Runnable helloRunnable2 = new Runnable() {
             public void run() {
-                //((ContactarServidor) new ContactarServidor()).start();
+                ((ContactarServidor) new ContactarServidor(r25.envio,r25.dataXML,r142.envio,r142.dataXML,r500.envio,r500.dataXML,r602.envio,r602.dataXML,r300.envio,r300.dataXML)).start();
+                //((ContactarServidor) new ContactarServidor(r142.envio,r142.dataXML)).start();
+                //((ContactarServidor) new ContactarServidor(r500.envio,r500.dataXML)).start();
+                //((ContactarServidor) new ContactarServidor(r602.envio,r602.dataXML)).start();
+                //((ContactarServidor) new ContactarServidor(r300.envio,r300.dataXML)).start();
+                
            /*     r25.actualizarEnServidor();
                 r142.actualizarEnServidor();
                 r500.actualizarEnServidor();
@@ -80,8 +85,8 @@ public class Simulador implements Runnable {
         //ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         //executor.scheduleAtFixedRate(helloRunnable, 0, 3, TimeUnit.SECONDS);
 
-        //ScheduledExecutorService executor2 = Executors.newScheduledThreadPool(1);
-        //executor2.scheduleAtFixedRate(helloRunnable2, 0, 5, TimeUnit.SECONDS);
+        ScheduledExecutorService executor2 = Executors.newScheduledThreadPool(1);
+        executor2.scheduleAtFixedRate(helloRunnable2, 0, 5, TimeUnit.SECONDS);
     }
 
     public void run() {

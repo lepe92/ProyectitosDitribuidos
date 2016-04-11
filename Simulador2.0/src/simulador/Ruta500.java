@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import static simulador.Ruta142.suscriptores;
 
 public class Ruta500 extends Ruta
 { public static ArrayList<Suscriptor> suscriptores;
