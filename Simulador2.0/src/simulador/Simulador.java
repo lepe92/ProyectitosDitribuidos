@@ -28,7 +28,7 @@ public class Simulador implements Runnable {
         r300.start();
         r142.start();
 
-        
+        /*
                 actualizarEnServidor("mapa25.xml");
                 actualizarEnServidor("mapa142.xml");
                 actualizarEnServidor("mapa300.xml");
@@ -40,7 +40,7 @@ public class Simulador implements Runnable {
                 actualizarEnServidor("paradas300.xml");
                 actualizarEnServidor("paradas500.xml");
                 actualizarEnServidor("paradas602.xml");
-                
+                */
         (new Thread(new Simulador())).start();
 
         Runnable helloRunnable = new Runnable() {
@@ -51,21 +51,33 @@ public class Simulador implements Runnable {
                 r602.notificarSuscriptores();
                 r25.notificarSuscriptores();
                 r300.notificarSuscriptores();
-                
-                actualizarEnServidor("data25.xml");
-                actualizarEnServidor("data142.xml");
-                actualizarEnServidor("data300.xml");
-                actualizarEnServidor("data500.xml");
-                actualizarEnServidor("data602.xml");                              
+                //((ContactarServidor)new ContactarServidor()).start();
+                //actualizarEnServidor("data25.xml");
+                //actualizarEnServidor("data142.xml");
+                //actualizarEnServidor("data300.xml");
+                //actualizarEnServidor("data500.xml");
+                //actualizarEnServidor("data602.xml");                              
             }
         };
 
+        
+         Runnable helloRunnable2 = new Runnable() {
+            public void run() {
+                ((ContactarServidor)new ContactarServidor()).start();
+                
+            }
+        };
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         executor.scheduleAtFixedRate(helloRunnable, 0, 3, TimeUnit.SECONDS);
+        
+        ScheduledExecutorService executor2 = Executors.newScheduledThreadPool(1);
+        executor2.scheduleAtFixedRate(helloRunnable2, 0, 5, TimeUnit.SECONDS);
     }
 
     public void run() {
         Server servidor = new Server(5000);
+        
+        //((ServidorHilo) new ServidorHilo(socket)).start();
     }
 
     public static void actualizarEnServidor(String file) {

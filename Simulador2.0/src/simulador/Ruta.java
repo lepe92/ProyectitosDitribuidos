@@ -1,11 +1,18 @@
 package simulador;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
 
 public abstract class Ruta extends Thread {
 
@@ -20,12 +27,61 @@ public abstract class Ruta extends Thread {
     public int numRuta, numCamiones;
     public final String pathPrincipal = "C:/wamp/www/Ubus/";
 
- 
-
     /*public void addSuscriptor(Suscriptor m) {
         suscriptores.add(m);
     }*/
-    
+    public void actualizarEnServidor(String file) {
+        String server = "jimenezlepe.comuv.com";
+        int port = 21;
+        String user = "a2811468";
+        String pass = "ornitorrinco8";
+
+        FTPClient ftpClient = new FTPClient();
+        try {
+
+            ftpClient.connect(server, port);
+            ftpClient.login(user, pass);
+            ftpClient.enterLocalPassiveMode();
+
+            ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+
+            // APPROACH #2: uploads second file using an OutputStream
+            //File secondLocalFile = new File("C:/wamp/www/Ubus/" + file);
+            File secondLocalFile = new File(file);
+            String secondRemoteFile = "public_html/Ubus/Administrador/Choferes/" + file;
+            InputStream inputStream = new FileInputStream(secondLocalFile);
+
+            // ftpClient.deleteFile("public_html/Ubus/Administrador/info/data.xml);
+            System.out.println("Start uploading file");
+            OutputStream outputStream = ftpClient.storeFileStream(secondRemoteFile);
+            byte[] bytesIn = new byte[4096];
+            int read = 0;
+
+            while ((read = inputStream.read(bytesIn)) != -1) {
+                outputStream.write(bytesIn, 0, read);
+            }
+            inputStream.close();
+            outputStream.close();
+
+            boolean completed = ftpClient.completePendingCommand();
+            if (completed) {
+                System.out.println("The file is uploaded successfully.");
+            }
+
+        } catch (IOException ex) {
+            System.out.println("Error: " + ex.getMessage());
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (ftpClient.isConnected()) {
+                    ftpClient.logout();
+                    ftpClient.disconnect();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
 
     public Ruta() {
     }
@@ -205,6 +261,7 @@ public abstract class Ruta extends Thread {
         int n = puntosRuta.size();
 
         File f1 = new File(filePathDataxml);
+        System.out.println("filedata:  "+filePathDataxml);
         if (f1.exists()) {
             f1.delete();
         }
@@ -217,7 +274,10 @@ public abstract class Ruta extends Thread {
         salto[1] = '\n';
 
         try {
+
             archivo = new RandomAccessFile(f1, "rw");
+            FileChannel channel = archivo.getChannel();
+            FileLock lock = channel.lock();
             archivo.writeBytes("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
             archivo.write(salto);
             archivo.writeBytes("<markers>");
@@ -268,8 +328,14 @@ public abstract class Ruta extends Thread {
                 archivo.write(salto);
             }
             archivo.writeBytes("</markers>");
+            // Remember to release the lock
+            lock.release();
+
+            // Close the file
+            channel.close();
             archivo.close();
-            
+           
+            //actualizarEnServidor(filePathDataxml);
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
@@ -352,7 +418,7 @@ public abstract class Ruta extends Thread {
 
         while (true) {
             write_File_dataxml();
-            
+
             try {
                 Thread.sleep(time);
             } catch (InterruptedException e) {
