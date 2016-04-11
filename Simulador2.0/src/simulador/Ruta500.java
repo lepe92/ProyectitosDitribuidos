@@ -9,6 +9,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import static simulador.Ruta142.suscriptores;
 
 public class Ruta500 extends Ruta
@@ -23,9 +26,21 @@ public class Ruta500 extends Ruta
         filetxtPath     = pathPrincipal + "Ruta 500.txt";
         filePathDataxml = pathPrincipal + "data500.xml";
         filePathMapaxml = pathPrincipal + "mapa500.xml";
+        dataXML="data500.xml";
         suscriptores= new ArrayList<>();
         leerArchivoTxt();
         interpolar();
+        
+         Runnable helloRunnable = new Runnable() {
+            public void run() {
+                //((ContactarServidor) new ContactarServidor()).start();
+                System.out.println("notificar suscriptores 500");
+                notificarSuscriptores();     
+              //  actualizarEnServidor();
+            }
+        };
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(helloRunnable, 0, 3, TimeUnit.SECONDS);
     }
  public void notificarSuscriptores() {
         //  String message = "&id=[\"edxAM5s6aSI:APA91bE9q0E7fwByitjgKyEwHZkxLgiuCEYqPhSBHOmUm4QkqMUpXoYL8gikHmSEVtJm0A6bBA_xgy_TH4S5dPpbzhcajQkMQs2Eot48HqMkr8qqKr3unDNkIj-qDLAxDjGKah6AFIB9\",\"ce_KeNyXuMQ:APA91bEk7J-9srI8Mc2Y65tQJo-_dZ4gIv6MoroIOoJJMcE2n_YxRyOAa-UZZdYygtGVN2qc0u-58auBqhzLmGpoPj3aS5gLTiLkKEpbxLyj_C3gAHusB-C-YbhSa1NuGkOEqp0MSFv0\"]";

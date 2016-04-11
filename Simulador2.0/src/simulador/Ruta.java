@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -24,13 +25,14 @@ public abstract class Ruta extends Thread {
     public String filePathMapaxml;
     public String filePathDataxml;
     public static int turno;
+    public String dataXML;
     public int numRuta, numCamiones;
     public final String pathPrincipal = "C:/wamp/www/Ubus/";
 
     /*public void addSuscriptor(Suscriptor m) {
         suscriptores.add(m);
     }*/
-    public void actualizarEnServidor(String file) {
+    public void actualizarEnServidor(String envio) {
         String server = "jimenezlepe.comuv.com";
         int port = 21;
         String user = "a2811468";
@@ -47,27 +49,46 @@ public abstract class Ruta extends Thread {
 
             // APPROACH #2: uploads second file using an OutputStream
             //File secondLocalFile = new File("C:/wamp/www/Ubus/" + file);
-            File secondLocalFile = new File(file);
-            String secondRemoteFile = "public_html/Ubus/Administrador/Choferes/" + file;
-            InputStream inputStream = new FileInputStream(secondLocalFile);
+            //FileChannel channel = new RandomAccessFile(secondLocalFile, "rw").getChannel();
+            //FileLock lock = channel.tryLock();
 
-            // ftpClient.deleteFile("public_html/Ubus/Administrador/info/data.xml);
-            System.out.println("Start uploading file");
-            OutputStream outputStream = ftpClient.storeFileStream(secondRemoteFile);
-            byte[] bytesIn = new byte[4096];
-            int read = 0;
+                //System.out.println("bloqueo por parte del ftp "+lock.isValid());
 
-            while ((read = inputStream.read(bytesIn)) != -1) {
-                outputStream.write(bytesIn, 0, read);
-            }
-            inputStream.close();
-            outputStream.close();
+                // String secondRemoteFile = "public_html/Ubus/Administrador/Choferes/" + file;
+                String secondRemoteFile = "public_html/prueba/mapas/" +dataXML;
+                boolean bandera = true;
 
-            boolean completed = ftpClient.completePendingCommand();
-            if (completed) {
-                System.out.println("The file is uploaded successfully.");
-            }
+                //InputStream inputStream = new FileInputStream(secondLocalFile);
 
+                // ftpClient.deleteFile("public_html/Ubus/Administrador/info/data.xml);
+                //System.out.println("Start uploading file");
+                OutputStream outputStream = ftpClient.storeFileStream(secondRemoteFile);
+                byte[] bytesIn = new byte[4096];
+                int read = 0;
+
+                //while ((read = inputStream.read(bytesIn)) != -1) {
+                  //  outputStream.write(bytesIn, 0, read);
+                //}
+                //inputStream.close();
+                
+                final PrintStream printStream = new PrintStream(outputStream);
+                printStream.print(envio);
+                printStream.close();
+                
+                outputStream.close();
+
+                // lock.release();
+                // channel.close();
+                boolean completed = ftpClient.completePendingCommand();
+                if (completed) {
+                    System.out.println((char) 27 + "[34;43mThe file is uploaded successfully. " + dataXML);
+//System.out.println("The file is uploaded successfully. " + file);
+                }
+           
+         
+            
+            //   lock.release();
+            //  channel.close();
         } catch (IOException ex) {
             System.out.println("Error: " + ex.getMessage());
             ex.printStackTrace();
@@ -76,6 +97,7 @@ public abstract class Ruta extends Thread {
                 if (ftpClient.isConnected()) {
                     ftpClient.logout();
                     ftpClient.disconnect();
+
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -261,7 +283,7 @@ public abstract class Ruta extends Thread {
         int n = puntosRuta.size();
 
         File f1 = new File(filePathDataxml);
-        System.out.println("filedata:  "+filePathDataxml);
+        //System.out.println("filedata:  "+filePathDataxml);
         if (f1.exists()) {
             f1.delete();
         }
@@ -274,12 +296,14 @@ public abstract class Ruta extends Thread {
         salto[1] = '\n';
 
         try {
-
+String envio="";
             archivo = new RandomAccessFile(f1, "rw");
             FileChannel channel = archivo.getChannel();
             FileLock lock = channel.lock();
+           envio="<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
             archivo.writeBytes("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
             archivo.write(salto);
+            envio+="<markers>";
             archivo.writeBytes("<markers>");
             archivo.write(salto);
             /*
@@ -324,18 +348,21 @@ public abstract class Ruta extends Thread {
                 x = cmn.posicion;
                 slat1 = String.valueOf(x.lat);
                 slon1 = String.valueOf(x.lng);
+                envio+="<marker status=\"bus" + numRuta + "\" lat=\"" + slat1 + "\" lng=\"" + slon1 + "\" />";
                 archivo.writeBytes("<marker status=\"bus" + numRuta + "\" lat=\"" + slat1 + "\" lng=\"" + slon1 + "\" />");
                 archivo.write(salto);
             }
+            envio+="</markers>";
             archivo.writeBytes("</markers>");
-            // Remember to release the lock
+            //mandar envio
             lock.release();
 
+        //    actualizarEnServidor(envio);
+            
             // Close the file
             channel.close();
-            archivo.close();
-           
-            //actualizarEnServidor(filePathDataxml);
+            archivo.close();     
+         
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

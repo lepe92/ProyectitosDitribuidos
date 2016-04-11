@@ -40,43 +40,53 @@ public class Simulador implements Runnable {
                 actualizarEnServidor("paradas300.xml");
                 actualizarEnServidor("paradas500.xml");
                 actualizarEnServidor("paradas602.xml");
-                */
+         */
         (new Thread(new Simulador())).start();
 
         Runnable helloRunnable = new Runnable() {
             public void run() {
-                System.out.println("notificando suscriptores");
-                r142.notificarSuscriptores();
+               // System.out.println("notificando suscriptores 142");
+                //r142.notificarSuscriptores();
+              /*  System.out.println("notificando suscriptores 500");
                 r500.notificarSuscriptores();
+                System.out.println("notificando suscriptores 602");
                 r602.notificarSuscriptores();
+                System.out.println("notificando suscriptores 25");
                 r25.notificarSuscriptores();
+                System.out.println("notificando suscriptores 300");
                 r300.notificarSuscriptores();
-                //((ContactarServidor)new ContactarServidor()).start();
+*/                
+//((ContactarServidor)new ContactarServidor()).start();
                 //actualizarEnServidor("data25.xml");
                 //actualizarEnServidor("data142.xml");
                 //actualizarEnServidor("data300.xml");
                 //actualizarEnServidor("data500.xml");
-                //actualizarEnServidor("data602.xml");                              
+                //actualizarEnServidor("data602.xml");  
+
             }
         };
 
-        
-         Runnable helloRunnable2 = new Runnable() {
+        Runnable helloRunnable2 = new Runnable() {
             public void run() {
-                ((ContactarServidor)new ContactarServidor()).start();
-                
+                //((ContactarServidor) new ContactarServidor()).start();
+           /*     r25.actualizarEnServidor();
+                r142.actualizarEnServidor();
+                r500.actualizarEnServidor();
+                r602.actualizarEnServidor();
+                r300.actualizarEnServidor();
+*/
             }
         };
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(helloRunnable, 0, 3, TimeUnit.SECONDS);
-        
-        ScheduledExecutorService executor2 = Executors.newScheduledThreadPool(1);
-        executor2.scheduleAtFixedRate(helloRunnable2, 0, 5, TimeUnit.SECONDS);
+        //ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        //executor.scheduleAtFixedRate(helloRunnable, 0, 3, TimeUnit.SECONDS);
+
+        //ScheduledExecutorService executor2 = Executors.newScheduledThreadPool(1);
+        //executor2.scheduleAtFixedRate(helloRunnable2, 0, 5, TimeUnit.SECONDS);
     }
 
     public void run() {
         Server servidor = new Server(5000);
-        
+
         //((ServidorHilo) new ServidorHilo(socket)).start();
     }
 

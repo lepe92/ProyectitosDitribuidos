@@ -9,6 +9,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Ruta142 extends Ruta
 {    
@@ -24,9 +27,21 @@ public class Ruta142 extends Ruta
         filetxtPath     = pathPrincipal + "Ruta 142 A.txt";
         filePathDataxml = pathPrincipal + "data142.xml";
         filePathMapaxml = pathPrincipal + "mapa142.xml";
+        dataXML="data142.xml";
         suscriptores= new ArrayList<>();
         leerArchivoTxt();
         interpolar();
+        
+        Runnable helloRunnable = new Runnable() {
+            public void run() {
+                //((ContactarServidor) new ContactarServidor()).start();
+                System.out.println("notificar suscriptores 142");
+                notificarSuscriptores();               
+              //  actualizarEnServidor();
+            }
+        };
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+       executor.scheduleAtFixedRate(helloRunnable, 0, 3, TimeUnit.SECONDS);
     }
     
      public void notificarSuscriptores() {
