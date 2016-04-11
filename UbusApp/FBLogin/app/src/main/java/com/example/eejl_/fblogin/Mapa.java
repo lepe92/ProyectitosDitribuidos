@@ -76,7 +76,8 @@ import java.util.TimerTask;
 
 public class Mapa extends FragmentActivity implements OnMapReadyCallback, LocationListener {
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-
+    String paradas = "";
+    ArrayList<Marker> camioncitos;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
     private boolean isReceiverRegistered;
     String token = "";
@@ -100,9 +101,12 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
     //se sustituirá por la del gps posteriormente
     protected LatLng ubicacionActual = new LatLng(20.732360000000003, -103.35151);
     protected LatLng center = new LatLng(20.732360000000003, -103.35151);
+    int resID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        camioncitos = new ArrayList<>();
         idcamiones = new ArrayList<>();
         nombrecamiones = new ArrayList<>();
         super.onCreate(savedInstanceState);
@@ -133,14 +137,45 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
             Ruta[1] = "{\"Ruta\":[" + Ruta[1] + "]}";
             Log.i("mensaje", Ruta[1]);
 
-            //  Log.i("mensaje",extras.getString("color"));
-            // m.putExtra("color",colores.get(index));
-            if (extras.getInt("color") != 0) {
+/*            if (extras.getInt("color") != 0) {
                 colorcito = extras.getInt("color");
+            }*/
+            if (Ruta[0].contains("Ruta 142")) {
+                colorcito = Color.parseColor("#238E68");
+                String mDrawableName = "bus142";
+                resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
+            } else if (Ruta[0].contains("Ruta 300")) {
+                colorcito = Color.parseColor("#FF00FF");
+                String mDrawableName = "bus300";
+                resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
+            } else if (Ruta[0].contains("Ruta 602")) {
+                colorcito = Color.parseColor("#0000FF");
+                String mDrawableName = "bus602";
+                resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
+            } else if (Ruta[0].contains("Ruta 500")) {
+                colorcito = Color.parseColor("#FF0000");
+                String mDrawableName = "bus500";
+                resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
+            } else if (Ruta[0].contains("Ruta 25")) {
+                colorcito = Color.parseColor("#8E236B");
+                String mDrawableName = "bus25";
+                resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
             }
+
+
+            /*
+            * if(polyid.size()==0)//ruta142
+                    colores.add(Color.parseColor("#238E68"));
+                if(polyid.size()==1)//ruta300
+                    colores.add(Color.parseColor("#FF00FF"));
+                if(polyid.size()==2)//ruta602
+                    colores.add(Color.parseColor("#0000FF"));
+                if(polyid.size()==3)//ruta500
+                colores.add(Color.parseColor("#FF0000"));
+                if(polyid.size()==4)//ruta25
+                    colores.add(Color.parseColor("#8E236B"));*/
         }
         // Get the location manager
-
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         // Define the criteria how to select the locatioin provider -> use
@@ -576,18 +611,13 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
             PolylineOptions polylineOptions = new PolylineOptions();
 
 // Create polyline options with existing LatLng ArrayList
-            if (colorcito != 0) {
+
                 polylineOptions.addAll(coordList);
                 polylineOptions
                         .width(5)
                         .color(colorcito);
 
-            } else {
-                polylineOptions.addAll(coordList);
-                polylineOptions
-                        .width(5)
-                        .color(Color.RED);
-            }
+
 // Adding multiple points in map using polyline and arraylist
             mMap.addPolyline(polylineOptions);
 
@@ -732,7 +762,7 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
                 dis = new DataInputStream(socket.getInputStream());
 
                 String temp[] = Ruta[0].split("!");
-                String message = "desuscripcion@" + temp[1]+"@"+token;
+                String message = "desuscripcion@" + temp[1] + "@" + token;
 
                 dos.writeUTF(message);
                 response = dis.readUTF();
@@ -844,7 +874,10 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
         protected void onPostExecute(String s) {
             //procesar el JSON que se ha recibido
             super.onPostExecute(s);
-            dibujarCamiones(s);
+            //sustituir por dibujar paradas
+            paradas = s;
+            dibujarParadas();
+            //dibujarCamiones(s);
         }
     }
 
@@ -909,6 +942,7 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
                 myClientTask.execute();
             } else {
                 Log.i("mensaje GCM ", message);
+                //   dibujarParadas();
                 dibujarCamiones(message);
             }
             //do other stuff here
@@ -916,24 +950,16 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
     };
 
     public void dibujarCamiones(String s) {
-        mMap.clear();
+        // mMap.clear();
 
 
         // Add a marker in Sydney and move the camera
 
-        PolylineOptions polylineOptions = new PolylineOptions();
 
-// Create polyline options with existing LatLng ArrayList
-        polylineOptions.addAll(coordList);
-        polylineOptions
-                .width(5)
-                .color(Color.RED);
-
-// Adding multiple points in map using polyline and arraylist
-        mMap.addPolyline(polylineOptions);
-        MarkerOptions m = new MarkerOptions().position(ubicacionActual).title("Mi ubicacion").draggable(true);
-        //m.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bus));
-        mMap.addMarker(m);
+        for (int i = 0; i < camioncitos.size(); i++) {
+            camioncitos.get(i).remove();
+        }
+        camioncitos.clear();
 
         //dibujar maradorcitos de camiones
 
@@ -947,7 +973,29 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
                 //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
                 idcamiones.add(explrObject.getString("idcamion"));
                 nombrecamiones.add(explrObject.getString("nombre"));
-                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre") + " capacidad" + explrObject.getString("capacidad")).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
+                Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre") + " capacidad" + explrObject.getString("capacidad")).icon(BitmapDescriptorFactory.fromResource(resID)));
+                camioncitos.add(m);
+            }
+        }
+
+//aqui meterle datos al arraylist
+        catch (Exception io) {
+        }
+    }
+
+    public void dibujarParadas() {
+        MarkerOptions m = new MarkerOptions().position(ubicacionActual).title("Mi ubicacion").draggable(true);
+        //m.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bus));
+        mMap.addMarker(m);
+
+
+        try {
+            JSONObject jsnobject = new JSONObject(paradas);
+            JSONArray jsonArray = jsnobject.getJSONArray("marker");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject explrObject = jsonArray.getJSONObject(i);
+                //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
+                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("-lat")), Double.parseDouble(explrObject.getString("-lng")))).icon(BitmapDescriptorFactory.fromResource(R.drawable.busstation)));
             }
         }
 

@@ -205,13 +205,22 @@ dibujarMapa();
             PolylineOptions polylineOptions = new PolylineOptions();
                 Random rnd = new Random();
 
-                int color2 = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-                colores.add(color2);
+                //int color2 = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+                if(polyid.size()==0)//ruta142
+                    colores.add(Color.parseColor("#238E68"));
+                if(polyid.size()==1)//ruta300
+                    colores.add(Color.parseColor("#FF00FF"));
+                if(polyid.size()==2)//ruta602
+                    colores.add(Color.parseColor("#0000FF"));
+                if(polyid.size()==3)//ruta500
+                colores.add(Color.parseColor("#FF0000"));
+                if(polyid.size()==4)//ruta25
+                    colores.add(Color.parseColor("#8E236B"));
 // Create polyline options with existing LatLng ArrayList
             polylineOptions.addAll(coordList);
             polylineOptions
                     .width(5)
-                    .color(color2).clickable(true);
+                    .color(colores.get(polyid.size())).clickable(true);
 
 // Adding multiple points in map using polyline and arraylist
             String indexpoly=mMap.addPolyline(polylineOptions).getId();
