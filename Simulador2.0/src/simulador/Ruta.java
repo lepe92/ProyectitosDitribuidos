@@ -18,6 +18,7 @@ import org.apache.commons.net.ftp.FTPClient;
 public abstract class Ruta extends Thread {
 
     public ArrayList<Camion> unidades;
+    public ArrayList<Camion2> camiones;
     public ArrayList<p> puntosRuta;
     public ArrayList<p> paradasRuta;
     public double[][] puntos;
@@ -351,7 +352,7 @@ public abstract class Ruta extends Thread {
                 x = cmn.posicion;
                 slat1 = String.valueOf(x.lat);
                 slon1 = String.valueOf(x.lng);
-                envio+="<marker status=\"bus" + numRuta + "\" lat=\"" + slat1 + "\" lng=\"" + slon1 + "\" />";
+                envio+="<marker chofer=\""+camiones.get(j).chofer+"\" idbus=\""+camiones.get(j).id+"\" status=\"bus" + numRuta + "\" lat=\"" + slat1 + "\" lng=\"" + slon1 + "\" />";
                 archivo.writeBytes("<marker status=\"bus" + numRuta + "\" lat=\"" + slat1 + "\" lng=\"" + slon1 + "\" />");
                 archivo.write(salto);
             }

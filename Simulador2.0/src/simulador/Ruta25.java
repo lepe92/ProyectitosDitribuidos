@@ -17,10 +17,11 @@ public class Ruta25 extends Ruta {
 
     public static ArrayList<Suscriptor> suscriptores;
 
-    public Ruta25() {
+    public Ruta25(ArrayList<Camion2> camiones) {
         dataXML = "data25.xml";
         numRuta = 25;
-        numCamiones = 1;
+        numCamiones = camiones.size();
+        this.camiones=camiones;
         puntosRuta = new ArrayList<>();
         paradasRuta = new ArrayList<>();
         unidades = new ArrayList<>();
@@ -56,15 +57,15 @@ public class Ruta25 extends Ruta {
         }
         id += "]";
 
-        String camiones = "&mensaje={\"Camion\":[";
-        for (int i = 0; i < unidades.size(); i++) {
-            if (i == unidades.size() - 1) {
-                camiones += "{\"nombre\":\"El mil vueltas\",\"capacidad\":\"" + unidades.get(i).pasajeros + "/65\",\"idcamion\":\"1\",\"etiqueta\":\"bus1\",\"lat\":\"" + unidades.get(i).posicion.lat + "\",\"lng\":\"" + unidades.get(i).posicion.lng + "\"}";
-            } else {
-                camiones += "{\"nombre\":\"El mil vueltas\",\"capacidad\":\"" + unidades.get(i).pasajeros + "/65\",\"idcamion\":\"1\",\"etiqueta\":\"bus1\",\"lat\":\"" + unidades.get(i).posicion.lat + "\",\"lng\":\"" + unidades.get(i).posicion.lng + "\"},";
-            }
-        }
-        camiones += "]}";
+        String camiones2 = "&mensaje={\"Camion\":[";
+         for(int i=0; i<unidades.size();i++){
+             if (i==unidades.size()-1) {
+                  camiones2 += "{\"nombre\":\""+camiones.get(i).nombre+"\",\"capacidad\":\""+unidades.get(i).pasajeros+"/65\",\"idcamion\":\""+camiones.get(i).id+"\",\"chofer\":\""+camiones.get(i).chofer+"\",\"lat\":\"" + unidades.get(i).posicion.lat + "\",\"lng\":\"" + unidades.get(i).posicion.lng + "\"}";
+                } else {
+                    camiones2 += "{\"nombre\":\""+camiones.get(i).nombre+"\",\"capacidad\":\""+unidades.get(i).pasajeros+"/65\",\"idcamion\":\""+camiones.get(i).id+"\",\"chofer\":\""+camiones.get(i).chofer+"\",\"lat\":\"" + unidades.get(i).posicion.lat + "\",\"lng\":\"" + unidades.get(i).posicion.lng + "\"},";
+                }
+         }
+         camiones2 += "]}";
         try {
             // open a connection to the site
             URL url = new URL("http://localhost/Ubus/mandaGCM2.php");
@@ -74,7 +75,7 @@ public class Ruta25 extends Ruta {
             PrintStream ps = new PrintStream(con.getOutputStream());
             // send your parameters to your site
             ps.print(id);
-            ps.print(camiones);
+            ps.print(camiones2);
 
             // we have to get the input stream in order to actually send the request
             InputStream n = con.getInputStream();

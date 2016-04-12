@@ -76,7 +76,7 @@ String data5;
                 //System.out.println("bloqueo por parte del ftp "+lock.isValid());
 
                 // String secondRemoteFile = "public_html/Ubus/Administrador/Choferes/" + file;
-                String secondRemoteFile = "public_html/prueba/mapas/" +dataXML;
+                String secondRemoteFile = "public_html/Ubus/Administrador/Rutas/" +dataXML;
                 boolean bandera = true;
 
                 //InputStream inputStream = new FileInputStream(secondLocalFile);

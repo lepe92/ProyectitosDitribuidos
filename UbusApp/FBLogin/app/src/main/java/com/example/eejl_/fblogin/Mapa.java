@@ -973,7 +973,7 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
                 //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
                 idcamiones.add(explrObject.getString("idcamion"));
                 nombrecamiones.add(explrObject.getString("nombre"));
-                Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre") + " capacidad" + explrObject.getString("capacidad")).icon(BitmapDescriptorFactory.fromResource(resID)));
+                Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre") + " capacidad" + explrObject.getString("capacidad")+"Manejado por: "+explrObject.get("chofer")).icon(BitmapDescriptorFactory.fromResource(resID)));
                 camioncitos.add(m);
             }
         }
