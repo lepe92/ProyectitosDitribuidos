@@ -18,6 +18,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.Profile;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
@@ -39,7 +40,13 @@ private FacebookCallback<LoginResult> mc= new FacebookCallback<LoginResult>() {
         Profile p= Profile.getCurrentProfile();
         if(p!=null) {
             Log.d("bienvenido", p.getName());
+            SessionManager manager= new SessionManager();
+            manager.setPreferences(getContext(), "status", "1");
+            manager.setPreferences(getContext(), "correo", p.getName());
+
             Log.d("bienvenido", p.getLinkUri().toString());
+
+         //   LoginManager.getInstance().logOut();
             Intent ventanitaRuta=  new Intent(getActivity().getApplicationContext(), RutasMenu.class);
             startActivity(ventanitaRuta);
         }

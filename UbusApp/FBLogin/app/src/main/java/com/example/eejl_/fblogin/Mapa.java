@@ -220,9 +220,7 @@ listaParadas= new ArrayList<>();
                 String ubicacionParadalat=listaParadas.get(paradaMasCercana).latitude+"";
                 String ubicacionParadalng=listaParadas.get(paradaMasCercana).longitude+"";
                 String identificacion="";
-                Profile p = Profile.getCurrentProfile();
-
-                    SessionManager manager= new SessionManager();
+                                   SessionManager manager= new SessionManager();
                     String status=manager.getPreferences(Mapa.this, "status");
                     if (status.equals("1")){
                         identificacion=manager.getPreferences(Mapa.this, "correo");
