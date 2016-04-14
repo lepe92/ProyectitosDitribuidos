@@ -38,7 +38,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.Profile;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -51,7 +50,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
@@ -73,7 +71,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -83,22 +80,15 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
     ArrayList<Marker> camioncitos;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
     private boolean isReceiverRegistered;
-String origin, destination;
     String token = "";
     WebView v1;
-    Polyline line;
-    Marker miPosicion;
     String resultado = "";
     String idbus = "";
     Bitmap bitmap;
-    Button solicita, aborda, chofer;
-    List<LatLng> pontos;
     Dialog builder;
     ImageView imageView;
     ArrayList<String> idcamiones;
     ArrayList<String> nombrecamiones;
-    ArrayList<LatLng> listaParadas;
-    int paradaMasCercana=0;
     boolean ver = false;
     private GoogleMap mMap;
     LocationManager locationManager;
@@ -115,8 +105,7 @@ String origin, destination;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        line= null;
-listaParadas= new ArrayList<>();
+
         camioncitos = new ArrayList<>();
         idcamiones = new ArrayList<>();
         nombrecamiones = new ArrayList<>();
@@ -206,28 +195,71 @@ listaParadas= new ArrayList<>();
         v1 = (WebView) findViewById(R.id.webview);
         v1.setVisibility(View.INVISIBLE);
 
-        solicita = (Button) findViewById(R.id.mapButtonSolicita);
-        aborda = (Button) findViewById(R.id.mapButtonAborda);
-        chofer = (Button) findViewById(R.id.mapButtonChofer);
-
-        solicita.setEnabled(false);
-        aborda.setEnabled(false);
+        Button solicita = (Button) findViewById(R.id.mapButtonSolicita);
+        Button aborda = (Button) findViewById(R.id.mapButtonAborda);
+        Button chofer = (Button) findViewById(R.id.mapButtonChofer);
 
         solicita.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-             String ruta=Ruta[0];//centro de la ruta y nombre de la ruta
-                String ubicacionParadalat=listaParadas.get(paradaMasCercana).latitude+"";
-                String ubicacionParadalng=listaParadas.get(paradaMasCercana).longitude+"";
-                String identificacion="";
-                                   SessionManager manager= new SessionManager();
-                    String status=manager.getPreferences(Mapa.this, "status");
-                    if (status.equals("1")){
-                        identificacion=manager.getPreferences(Mapa.this, "correo");
+                //ProgressDialog loading = ProgressDialog.show(Mapa.this, "Pidiendo camión...", null, true, true);
+                AlertDialog.Builder builderSingle = new AlertDialog.Builder(Mapa.this);
+                builderSingle.setIcon(R.drawable.bus);
+                builderSingle.setTitle("Selecciona un camión:-");
+
+                final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                        Mapa.this,
+                        android.R.layout.select_dialog_singlechoice);
+                // arrayAdapter.add("Hardik");
+                /*if(!idcamiones.isEmpty()) {
+                    //solamente si hay camioncitos del simulador comienza a realizar esto
+                    for (int i = 0; i < idcamiones.size(); i++) {
+                        arrayAdapter.add(idcamiones.get(i));
+                    }*/
+                if (!nombrecamiones.isEmpty()) {
+                    //solamente si hay camioncitos del simulador comienza a realizar esto
+                    for (int i = 0; i < nombrecamiones.size(); i++) {
+                        arrayAdapter.add(nombrecamiones.get(i));
                     }
-SolicitarCamion sc= new SolicitarCamion(ruta, ubicacionParadalat,ubicacionParadalng,identificacion);
-                sc.execute();
-                Log.i("mensaje","persona que solicita "+identificacion);
+                    builderSingle.setNegativeButton(
+                            "cancel",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+
+                    builderSingle.setAdapter(
+                            arrayAdapter,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //String strName = arrayAdapter.getItem(which);
+                                    //obtener el id en los nombre de camiones y con eso
+                                    //el id en el idcamiones
+                                    int id = nombrecamiones.indexOf(arrayAdapter.getItem(which));
+                                    idbus = idcamiones.get(id);
+                                    Log.i("mensaje", idbus);
+                                    AlertDialog.Builder builderInner = new AlertDialog.Builder(
+                                            Mapa.this);
+                                    builderInner.setMessage(arrayAdapter.getItem(which));
+                                    builderInner.setTitle("Seleccionaste");
+                                    builderInner.setPositiveButton(
+                                            "Ok",
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(
+                                                        DialogInterface dialog,
+                                                        int which) {
+                                                    dialog.dismiss();
+                                                }
+                                            });
+                                    builderInner.show();
+                                }
+                            });
+                    builderSingle.show();
+                }
             }
         });
 
@@ -380,23 +412,13 @@ SolicitarCamion sc= new SolicitarCamion(ruta, ubicacionParadalat,ubicacionParada
         //descomentar cuando se requiera realmente la ubicacion del gps
         ubicacionActual = new LatLng(lat, lng);
         LatLng sydney = ubicacionActual;
-
-
-       //re vuelve mandar llamar dibujar paradas para que coloque el nuevo marcador
-miPosicion.remove();
-
-       MarkerOptions m = new MarkerOptions().position(sydney).title("Mi ubicacion").draggable(true);
+        MarkerOptions m = new MarkerOptions().position(sydney).title("Mi ubicacion").draggable(true);
         //m.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bus));
-
-       miPosicion=mMap.addMarker(m);
+        mMap.addMarker(m);
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 14));
 
-       // line.remove();
-        //dibujarParadas();
-        origin=ubicacionActual.latitude+","+ubicacionActual.longitude;
-//GetDirection me=new  GetDirection();
-//me.execute();
+
     }
 
     private class LoadImage extends AsyncTask<String, String, Bitmap> {
@@ -551,36 +573,18 @@ miPosicion.remove();
             @Override
             public void onMarkerDragStart(Marker arg0) {
                 // TODO Auto-generated method stub
-                Log.i("System out", "onMarkerDragStart..." + arg0.getPosition().latitude + "..." + arg0.getPosition().longitude);
+                Log.d("System out", "onMarkerDragStart..." + arg0.getPosition().latitude + "..." + arg0.getPosition().longitude);
             }
 
             @SuppressWarnings("unchecked")
             @Override
             public void onMarkerDragEnd(Marker arg0) {
                 // TODO Auto-generated method stub
-                Log.i("mensaje", arg0.getPosition().latitude + "..." + arg0.getPosition().longitude);
+                Log.d("mensaje", arg0.getPosition().latitude + "..." + arg0.getPosition().longitude);
 //reenviar al simulador mi ubicación
-
-             //   line.remove();
-//Log.i("mensaje","id de polilinea "+line.getId());
-//dibujarParadas();
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(arg0.getPosition()));
                 ubicacionActual = arg0.getPosition();
 
-
-
-                origin=ubicacionActual.latitude+","+ubicacionActual.longitude;
-
-               // GetDirection me= new GetDirection();
-                //me.execute();
-
-               double distanciaparada=distancia(ubicacionActual.latitude,ubicacionActual.longitude,listaParadas.get(paradaMasCercana).latitude,listaParadas.get(paradaMasCercana).longitude)*1000;
-                Log.i("mensaje","distancia con la parada "+distanciaparada);
-                if(distanciaparada<=3){
-                    solicita.setEnabled(true);
-                    //aborda.setEnabled(true);
-                    Toast.makeText(getApplicationContext(), "Ya puedes solicitar un camion",Toast.LENGTH_LONG).show();
-                }
             }
 
             @Override
@@ -600,7 +604,7 @@ miPosicion.remove();
                 coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
 
                 // if(i==jsonArray.length()/2 || i==jsonArray.length()/2 +1 || i==jsonArray.length()/2-1) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 14));
+//                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))), 15));
                 //              }
             }
 
@@ -608,10 +612,10 @@ miPosicion.remove();
 
 // Create polyline options with existing LatLng ArrayList
 
-                polylineOptions.addAll(coordList);
-                polylineOptions
-                        .width(5)
-                        .color(colorcito);
+            polylineOptions.addAll(coordList);
+            polylineOptions
+                    .width(5)
+                    .color(colorcito);
 
 
 // Adding multiple points in map using polyline and arraylist
@@ -734,9 +738,8 @@ miPosicion.remove();
     public class Desuscripcion extends AsyncTask<String, Void, String> {
         // String dstAddress="10.0.5.121";
         //String dstAddress="10.0.5.241";
+        //String dstAddress = "10.0.5.113";
         String dstAddress = "10.0.5.196";
-        //String dstAddress = "10.0.1.7";
-        //String dstAddress = "10.0.5.196";
         //String dstAddress="192.168.1.70";
         int dstPort = 5000;
         String response = "";
@@ -802,8 +805,6 @@ miPosicion.remove();
         // String dstAddress="10.0.5.121";
         //String dstAddress="10.0.5.241";
         String dstAddress = "10.0.5.196";
-        //String dstAddress = "10.0.1.7";
-       // String dstAddress = "10.0.5.196";
         //String dstAddress="192.168.1.70";
         int dstPort = 5000;
         String response = "";
@@ -875,99 +876,12 @@ miPosicion.remove();
             //procesar el JSON que se ha recibido
             super.onPostExecute(s);
             //sustituir por dibujar paradas
-          // String [] temp=s.split("@");
-//            Log.i("mensaje","la parada mas cercana es "+temp[1]);
-//          paradaMasCercana=Integer.parseInt(temp[1]);
-          //  Log.i("mensaje","tamño de split "+temp.length);
             paradas = s;
-
             dibujarParadas();
             //dibujarCamiones(s);
         }
     }
 
-    public class SolicitarCamion extends AsyncTask<String, Void, String> {
-
-        String dstAddress = "10.0.5.196";
-        int dstPort = 5000;
-        String response = "";
-String ruta, lat, lng, perfil;
-        public SolicitarCamion(String ruta, String lat, String lng, String perfil){
-            this.ruta=ruta;
-            this.lat=lat;
-            this.lng=lng;
-            this.perfil=perfil;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-        }
-
-
-        @Override
-        protected String doInBackground(String... arg0) {
-
-            Socket socket = null;
-
-            try {
-                socket = new Socket(dstAddress, dstPort);
-                Log.i("mensaje", "conectado");
-                dos = new DataOutputStream(socket.getOutputStream());
-                dis = new DataInputStream(socket.getInputStream());
-
-                JSONObject jsonObject = new JSONObject();
-                try {
-                    //ubicacion y ruta
-                    String temp[] = Ruta[0].split("!");
-                    jsonObject.put("Ruta", ruta);
-                    jsonObject.put("lat", lat);
-                    jsonObject.put("lng", lng);
-                    jsonObject.put("perfil", perfil);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                String message = jsonObject.toString();
-
-                dos.writeUTF(message);
-
-
-                response = dis.readUTF();
-
-                Log.i("mensaje", response);
-
-                return response;
-            } catch (UnknownHostException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-
-                response = "UnknownHostException: " + e.toString();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                response = "IOException: " + e.toString();
-            } finally {
-                if (socket != null) {
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-
-            super.onPostExecute(s);
-Log.i("mensaje","respuesta solicitud camion "+s);
-        }
-    }
 
     @Override
     protected void onResume() {
@@ -1071,9 +985,9 @@ Log.i("mensaje","respuesta solicitud camion "+s);
     }
 
     public void dibujarParadas() {
-        MarkerOptions m = new MarkerOptions().position(ubicacionActual).title("Mi ubicacion").draggable(true);
+       // MarkerOptions m = new MarkerOptions().position(ubicacionActual).title("Mi ubicacion").draggable(true);
         //m.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bus));
-        miPosicion=mMap.addMarker(m);
+       // mMap.addMarker(m);
 
 
         try {
@@ -1083,170 +997,11 @@ Log.i("mensaje","respuesta solicitud camion "+s);
                 JSONObject explrObject = jsonArray.getJSONObject(i);
                 //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
                 mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("-lat")), Double.parseDouble(explrObject.getString("-lng")))).icon(BitmapDescriptorFactory.fromResource(R.drawable.busstation)));
-                listaParadas.add(new LatLng(Double.parseDouble(explrObject.getString("-lat")), Double.parseDouble(explrObject.getString("-lng"))));
             }
-            irAmasCercana();
-
         }
 
 //aqui meterle datos al arraylist
         catch (Exception io) {
         }
     }
-
-    public void irAmasCercana(){
-        paradaMasCercana=Integer.parseInt(paradamascercana(listaParadas));
-        Log.i("mensaje","parada mas cercana "+paradaMasCercana);
-        Log.i("mensaje",listaParadas.get(paradaMasCercana).latitude+","+listaParadas.get(paradaMasCercana).longitude);
-        destination=listaParadas.get(paradaMasCercana).latitude+","+listaParadas.get(paradaMasCercana).longitude;
-        origin=ubicacionActual.latitude+","+ubicacionActual.longitude;
-        GetDirection m= new GetDirection();
-        m.execute();
-    }
-
-
-    public String paradamascercana(ArrayList<LatLng> parada)
-    {
-        int j, idparada=0;
-        double dis, mindis=Double.POSITIVE_INFINITY;
-
-        for(j=0; j<parada.size(); j++)
-        {
-
-           LatLng paradax = parada.get(j);
-            dis = distancia(ubicacionActual.latitude, ubicacionActual.longitude, paradax.latitude, paradax.longitude);
-            if(dis < mindis)
-            {
-                mindis = dis;
-                idparada = j;
-            }
-        }
-
-        return String.valueOf(idparada);
-    }
-
-
-    public double distancia(double Lat1, double Lon1, double Lat2, double Lon2) {
-        double D;
-        double PI = 3.14159265358979323846;
-        Lat1 = Lat1 * PI / 180;
-        Lon1 = Lon1 * PI / 180;
-        Lat2 = Lat2 * PI / 180;
-        Lon2 = Lon2 * PI / 180;
-        D = 6378.137 * Math.acos(Math.cos(Lat1) * Math.cos(Lat2) * Math.cos(Lon2 - Lon1)
-                + Math.sin(Lat1) * Math.sin(Lat2));
-        return D;
-    }
-
-    class GetDirection extends AsyncTask<String, String, String> {
-        ProgressDialog dialog;
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            dialog = new ProgressDialog(Mapa.this);
-            dialog.setMessage("Guiandote a la estacion mas cercana..!");
-            dialog.setIndeterminate(false);
-            dialog.setCancelable(false);
-            dialog.show();
-            if(line!=null){
-                line.remove();
-            }
-        }
-
-        protected String doInBackground(String... args) {
-            String stringUrl = "http://maps.googleapis.com/maps/api/directions/json?origin=" + origin+ "&destination=" + destination+ "&sensor=false";
-            StringBuilder response = new StringBuilder();
-            try {
-                URL url = new URL(stringUrl);
-                HttpURLConnection httpconn = (HttpURLConnection) url
-                        .openConnection();
-                if (httpconn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    BufferedReader input = new BufferedReader(
-                            new InputStreamReader(httpconn.getInputStream()),
-                            8192);
-                    String strLine = null;
-
-                    while ((strLine = input.readLine()) != null) {
-                        response.append(strLine);
-                    }
-                    input.close();
-                }
-
-                String jsonOutput = response.toString();
-
-                JSONObject jsonObject = new JSONObject(jsonOutput);
-
-                // routesArray contains ALL routes
-                JSONArray routesArray = jsonObject.getJSONArray("routes");
-                // Grab the first route
-                JSONObject route = routesArray.getJSONObject(0);
-
-                JSONObject poly = route.getJSONObject("overview_polyline");
-                String polyline = poly.getString("points");
-                pontos = decodePoly(polyline);
-
-            } catch (Exception e) {
-
-            }
-
-            return null;
-
-        }
-
-        protected void onPostExecute(String file_url) {
-            for (int i = 0; i < pontos.size() - 1; i++) {
-                LatLng src = pontos.get(i);
-                LatLng dest = pontos.get(i + 1);
-                try{
-                    //here is where it will draw the polyline in your map
-                     line = mMap.addPolyline(new PolylineOptions()
-                            .add(new LatLng(src.latitude, src.longitude),
-                                    new LatLng(dest.latitude,                dest.longitude))
-                            .width(5).color(Color.BLACK).geodesic(true));
-                }catch(NullPointerException e){
-                    Log.e("Error", "NullPointerException onPostExecute: " + e.toString());
-                }catch (Exception e2) {
-                    Log.e("Error", "Exception onPostExecute: " + e2.toString());
-                }
-
-            }
-            dialog.dismiss();
-
-        }
-    }
-
-    private List<LatLng> decodePoly(String encoded) {
-
-        List<LatLng> poly = new ArrayList<LatLng>();
-        int index = 0, len = encoded.length();
-        int lat = 0, lng = 0;
-
-        while (index < len) {
-            int b, shift = 0, result = 0;
-            do {
-                b = encoded.charAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lat += dlat;
-
-            shift = 0;
-            result = 0;
-            do {
-                b = encoded.charAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lng += dlng;
-
-            LatLng p = new LatLng((((double) lat / 1E5)),
-                    (((double) lng / 1E5)));
-            poly.add(p);
-        }
-
-        return poly;
-    }
 }
-

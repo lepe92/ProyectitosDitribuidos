@@ -66,7 +66,8 @@ public class ServidorHilo extends Thread {
             
            String[] args = new String[4];
             args[0]="-ORBInitialHost";
-            args[1]="10.0.5.121";
+            //args[1]="10.0.5.121";
+            args[1]="10.0.5.196";
             args[2]="-ORBInitialPort";
             args[3]="1050";
             
