@@ -227,7 +227,8 @@ listaParadas= new ArrayList<>();
                     if (status.equals("1")){
                         identificacion=manager.getPreferences(Mapa.this, "correo");
                     }
-
+SolicitarCamion sc= new SolicitarCamion(ruta, ubicacionParadalat,ubicacionParadalng,identificacion);
+                sc.execute();
                 Log.i("mensaje","persona que solicita "+identificacion);
             }
         });
@@ -892,8 +893,13 @@ miPosicion.remove();
         String dstAddress = "10.0.5.196";
         int dstPort = 5000;
         String response = "";
-
-        public SolicitarCamion(String ){}
+String ruta, lat, lng, perfil;
+        public SolicitarCamion(String ruta, String lat, String lng, String perfil){
+            this.ruta=ruta;
+            this.lat=lat;
+            this.lng=lng;
+            this.perfil=perfil;
+        }
 
         @Override
         protected void onPreExecute() {
@@ -917,10 +923,10 @@ miPosicion.remove();
                 try {
                     //ubicacion y ruta
                     String temp[] = Ruta[0].split("!");
-                    jsonObject.put("Ruta", temp[1]);
-                    jsonObject.put("lat", "" + ubicacionActual.latitude);
-                    jsonObject.put("lng", "" + ubicacionActual.longitude);
-                    jsonObject.put("Token", token);
+                    jsonObject.put("Ruta", ruta);
+                    jsonObject.put("lat", lat);
+                    jsonObject.put("lng", lng);
+                    jsonObject.put("perfil", perfil);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -961,7 +967,7 @@ miPosicion.remove();
         protected void onPostExecute(String s) {
 
             super.onPostExecute(s);
-
+Log.i("mensaje","respuesta solicitud camion "+s);
         }
     }
 
