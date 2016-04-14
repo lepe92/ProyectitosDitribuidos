@@ -353,7 +353,7 @@ public abstract class Ruta extends Thread {
                 slat1 = String.valueOf(x.lat);
                 slon1 = String.valueOf(x.lng);
                 envio+="<marker chofer=\""+camiones.get(j).chofer+"\" idbus=\""+camiones.get(j).id+"\" status=\"bus" + numRuta + "\" lat=\"" + slat1 + "\" lng=\"" + slon1 + "\" />";
-                archivo.writeBytes("<marker status=\"bus" + numRuta + "\" lat=\"" + slat1 + "\" lng=\"" + slon1 + "\" />");
+                archivo.writeBytes("<marker chofe=\""+camiones.get(j).chofer+"\" status=\"bus" + numRuta + "\" lat=\"" + slat1 + "\" lng=\"" + slon1 + "\" />");
                 archivo.write(salto);
             }
             envio+="</markers>";

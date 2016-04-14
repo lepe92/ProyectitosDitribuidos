@@ -137,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.i("mensaje", json);
                         if (json.equals("logueo")) {
                             manager.setPreferences(MainActivity.this, "status", "1");
+                            manager.setPreferences(MainActivity.this, "correo",mail);
                             Intent m = new Intent(MainActivity.this, RutasMenu.class);
                             startActivity(m);
                         } else {

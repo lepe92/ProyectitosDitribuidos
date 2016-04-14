@@ -136,7 +136,7 @@ Boolean muestra= false;
                         Log.i("mensaje", json);
                         if(json.equals("insertado")){
                             manager.setPreferences(SignUp.this, "status", "1");
-
+                            manager.setPreferences(SignUp.this, "correo",correo);
                             Intent m = new Intent(SignUp.this, RutasMenu.class);
                             startActivity(m);
                         }
