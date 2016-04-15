@@ -1,6 +1,8 @@
 package com.example.edwin.ubicarpersona;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -10,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +28,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class dondeEsta extends AppCompatActivity {
+    int resID;
 
+    ImageView imageView;
     //private static final String JSON_URL = "http://jimenezlepe.comuv.com/consultaubicacion.php";
     //private static final String JSON_URL2 = "http://distribuidos.net23.net/consultaubicacion.php";
     String JSON_URL="";
@@ -221,6 +226,7 @@ public class dondeEsta extends AppCompatActivity {
             obj = new JSONObject(jsonresult);
             JSONArray arr = obj.getJSONArray("result");
            String cad="";
+            String ubicacion="";
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject m = arr.getJSONObject(i);
                 if(m.getString("ubicacion").equals("null")){cad="No sabemos donde está";}
@@ -228,9 +234,16 @@ public class dondeEsta extends AppCompatActivity {
                 cad+= m.getString("nombre")+" estuvo en "+m.getString("ubicacion") +"en la fecha "+m.getString("fecha");}
                 //Toast.makeText(getApplicationContext(),arr.getString(i),Toast.LENGTH_LONG).show();
                 Log.i("mensaje", m.getString("nombre"));
+                ubicacion=m.getString("ubicacion");
             }
             t1.setText(cad);
 
+            String mDrawableName = ubicacion;
+            Log.i("mensaje",ubicacion);
+            resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
+
+            imageView = (ImageView) findViewById(R.id.imagen);
+            imageView.setImageResource(resID);
 
         } catch (JSONException e) {
             e.printStackTrace();
