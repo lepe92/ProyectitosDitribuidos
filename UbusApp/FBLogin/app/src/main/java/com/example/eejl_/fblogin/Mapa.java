@@ -421,7 +421,8 @@ Button solicita,aborda, chofer;
 
     public class SolicitarCamion extends AsyncTask<String, Void, String> {
 
-        String dstAddress = "10.0.5.196";
+      //  String dstAddress = "10.0.5.196";
+      String dstAddress = "10.0.5.113";
         int dstPort = 5000;
         String response = "";
         String ruta, lat, lng, perfil;
@@ -827,9 +828,9 @@ Button solicita,aborda, chofer;
     public class Desuscripcion extends AsyncTask<String, Void, String> {
         // String dstAddress="10.0.5.121";
         //String dstAddress="10.0.5.241";
-        //String dstAddress = "10.0.5.113";
-        String dstAddress = "10.0.5.196";
-        //String dstAddress="192.168.1.70";
+        String dstAddress = "10.0.5.113";
+       // String dstAddress = "10.0.5.196";
+
         int dstPort = 5000;
         String response = "";
 
@@ -893,7 +894,8 @@ Button solicita,aborda, chofer;
     public class ContactarSimulador extends AsyncTask<String, Void, String> {
         // String dstAddress="10.0.5.121";
         //String dstAddress="10.0.5.241";
-        String dstAddress = "10.0.5.196";
+       // String dstAddress = "10.0.5.196";
+        String dstAddress = "10.0.5.113";
         //String dstAddress="192.168.1.70";
         int dstPort = 5000;
         String response = "";
@@ -1062,7 +1064,7 @@ Button solicita,aborda, chofer;
                 JSONObject explrObject = jsonArray.getJSONObject(i);
                 //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
                 idcamiones.add(explrObject.getString("idcamion"));
-                Log.i("mensaje","idcamion "+idcamiones);
+                //Log.i("mensaje","idcamion "+idcamiones);
                 nombrecamiones.add(explrObject.getString("nombre"));
                 Marker m;
                 if(explrObject.getString("idcamion").equals(camionCercano+"")) {

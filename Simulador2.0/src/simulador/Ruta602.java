@@ -13,36 +13,41 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class Ruta602 extends Ruta
-{ public static ArrayList<Suscriptor> suscriptores;
-    public Ruta602(ArrayList<Camion2> camiones)
-    {
+public class Ruta602 extends Ruta {
+
+    public static ArrayList<Suscriptor> suscriptores;
+
+    public static ArrayList<Camion2> camiones2;
+
+    public Ruta602(ArrayList<Camion2> camiones) {
         numRuta = 602;
         numCamiones = camiones.size();
-        this.camiones=camiones;
+        this.camiones = camiones;
+        camiones2 = new ArrayList<Camion2>(this.camiones);
         puntosRuta = new ArrayList<>();
         paradasRuta = new ArrayList<>();
         unidades = new ArrayList<>();
-        filetxtPath     = pathPrincipal + "Ruta 602.txt";
+        filetxtPath = pathPrincipal + "Ruta 602.txt";
         filePathDataxml = pathPrincipal + "data602.xml";
         filePathMapaxml = pathPrincipal + "mapa602.xml";
-        dataXML="data602.xml";
-        suscriptores= new ArrayList<>();
+        dataXML = "data602.xml";
+        suscriptores = new ArrayList<>();
         leerArchivoTxt();
         interpolar();
-        
-         Runnable helloRunnable = new Runnable() {
+
+        Runnable helloRunnable = new Runnable() {
             public void run() {
                 //((ContactarServidor) new ContactarServidor()).start();
                 System.out.println("notificar suscriptores 602");
-                notificarSuscriptores();               
-              //  actualizarEnServidor();
+                notificarSuscriptores();
+                //  actualizarEnServidor();
             }
         };
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         executor.scheduleAtFixedRate(helloRunnable, 0, 3, TimeUnit.SECONDS);
     }
-     public void notificarSuscriptores() {
+
+    public void notificarSuscriptores() {
         //  String message = "&id=[\"edxAM5s6aSI:APA91bE9q0E7fwByitjgKyEwHZkxLgiuCEYqPhSBHOmUm4QkqMUpXoYL8gikHmSEVtJm0A6bBA_xgy_TH4S5dPpbzhcajQkMQs2Eot48HqMkr8qqKr3unDNkIj-qDLAxDjGKah6AFIB9\",\"ce_KeNyXuMQ:APA91bEk7J-9srI8Mc2Y65tQJo-_dZ4gIv6MoroIOoJJMcE2n_YxRyOAa-UZZdYygtGVN2qc0u-58auBqhzLmGpoPj3aS5gLTiLkKEpbxLyj_C3gAHusB-C-YbhSa1NuGkOEqp0MSFv0\"]";
         // String mensaje = "&mensaje={\"Camion\":[{\"nombre\":\"El mil vueltas\",\"capacidad\":\"34/40\",\"idcamion\":\"1\",\"etiqueta\":\"bus1\",\"lat\":\"20.7336\",\"lng\":\"-103.35151\"},{\"nombre\":\"Camioncito 16\",\"capacidad\":\"27/40\",\"idcamion\":\"2\",\"etiqueta\":\"bus2\",\"lat\":\"20.7339\",\"lng\":\"-103.35155\"}]}";
         String id = "&id=[";
@@ -54,16 +59,16 @@ public class Ruta602 extends Ruta
             }
         }
         id += "]";
-        
+
         String camiones2 = "&mensaje={\"Camion\":[";
-         for(int i=0; i<unidades.size();i++){
-             if (i==unidades.size()-1) {
-                  camiones2 += "{\"nombre\":\""+camiones.get(i).nombre+"\",\"capacidad\":\""+unidades.get(i).pasajeros+"/65\",\"idcamion\":\""+camiones.get(i).id+"\",\"chofer\":\""+camiones.get(i).chofer+"\",\"lat\":\"" + unidades.get(i).posicion.lat + "\",\"lng\":\"" + unidades.get(i).posicion.lng + "\"}";
-                } else {
-                    camiones2 += "{\"nombre\":\""+camiones.get(i).nombre+"\",\"capacidad\":\""+unidades.get(i).pasajeros+"/65\",\"idcamion\":\""+camiones.get(i).id+"\",\"chofer\":\""+camiones.get(i).chofer+"\",\"lat\":\"" + unidades.get(i).posicion.lat + "\",\"lng\":\"" + unidades.get(i).posicion.lng + "\"},";
-                }
-         }
-         camiones2 += "]}";
+        for (int i = 0; i < unidades.size(); i++) {
+            if (i == unidades.size() - 1) {
+                camiones2 += "{\"nombre\":\"" + camiones.get(i).nombre + "\",\"capacidad\":\"" + unidades.get(i).pasajeros + "/65\",\"idcamion\":\"" + camiones.get(i).id + "\",\"chofer\":\"" + camiones.get(i).chofer + "\",\"lat\":\"" + unidades.get(i).posicion.lat + "\",\"lng\":\"" + unidades.get(i).posicion.lng + "\"}";
+            } else {
+                camiones2 += "{\"nombre\":\"" + camiones.get(i).nombre + "\",\"capacidad\":\"" + unidades.get(i).pasajeros + "/65\",\"idcamion\":\"" + camiones.get(i).id + "\",\"chofer\":\"" + camiones.get(i).chofer + "\",\"lat\":\"" + unidades.get(i).posicion.lat + "\",\"lng\":\"" + unidades.get(i).posicion.lng + "\"},";
+            }
+        }
+        camiones2 += "]}";
         try {
             // open a connection to the site
             URL url = new URL("http://localhost/Ubus/mandaGCM2.php");

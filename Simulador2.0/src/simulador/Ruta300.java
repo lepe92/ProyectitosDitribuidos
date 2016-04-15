@@ -16,11 +16,14 @@ import java.util.concurrent.TimeUnit;
 public class Ruta300 extends Ruta {
 
     public static ArrayList<Suscriptor> suscriptores;
+public static ArrayList<Camion2> camiones2;
+    
 
     public Ruta300(ArrayList<Camion2> camiones) {
         numRuta = 300;
         numCamiones = camiones.size();
         this.camiones=camiones;
+        camiones2=new ArrayList<Camion2>(this.camiones);
         puntosRuta = new ArrayList<>();
         paradasRuta = new ArrayList<>();
         unidades = new ArrayList<>();

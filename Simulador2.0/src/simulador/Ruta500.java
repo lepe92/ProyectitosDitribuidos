@@ -15,12 +15,14 @@ import java.util.concurrent.TimeUnit;
 
 public class Ruta500 extends Ruta
 { public static ArrayList<Suscriptor> suscriptores;
+public static ArrayList<Camion2> camiones2;
     public Ruta500(ArrayList<Camion2> camiones)
     {
         numRuta = 500;
         numCamiones = camiones.size();
         this.camiones=camiones;
         puntosRuta = new ArrayList<>();
+        camiones2=new ArrayList<Camion2>(this.camiones);
         paradasRuta = new ArrayList<>();
         unidades = new ArrayList<>();
         filetxtPath     = pathPrincipal + "Ruta 500.txt";
