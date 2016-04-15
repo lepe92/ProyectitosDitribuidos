@@ -220,8 +220,8 @@ Button solicita,aborda, chofer;
                 if (status.equals("1")){
                     identificacion=manager.getPreferences(Mapa.this, "correo");
                 }
-                //SolicitarCamion sc= new SolicitarCamion(ruta, ubicacionParadalat,ubicacionParadalng,identificacion);
-                //sc.execute();
+                SolicitarCamion sc= new SolicitarCamion(ruta, ubicacionParadalat,ubicacionParadalng,identificacion);
+                sc.execute();
                 Log.i("mensaje","persona que solicita "+identificacion);
             }
         });
@@ -322,6 +322,7 @@ Button solicita,aborda, chofer;
         });
 
 
+
         //Timer timer = new Timer();
         //cuando cambie la ubicación se debe contactar al simulador cada cinco segundos
         //TimerTask obtenCamiones = new contacta();
@@ -416,6 +417,90 @@ Button solicita,aborda, chofer;
                 + Math.sin(Lat1) * Math.sin(Lat2));
         return D;
     }
+
+    public class SolicitarCamion extends AsyncTask<String, Void, String> {
+
+        String dstAddress = "10.0.5.196";
+        int dstPort = 5000;
+        String response = "";
+        String ruta, lat, lng, perfil;
+        public SolicitarCamion(String ruta, String lat, String lng, String perfil){
+            this.ruta=ruta;
+            this.lat=lat;
+            this.lng=lng;
+            this.perfil=perfil;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+
+        @Override
+        protected String doInBackground(String... arg0) {
+
+            Socket socket = null;
+
+            try {
+                socket = new Socket(dstAddress, dstPort);
+                Log.i("mensaje", "conectado");
+                dos = new DataOutputStream(socket.getOutputStream());
+                dis = new DataInputStream(socket.getInputStream());
+
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    //ubicacion y ruta
+                    String temp[] = Ruta[0].split("!");
+                    jsonObject.put("Ruta", ruta);
+                    jsonObject.put("lat", lat);
+                    jsonObject.put("lng", lng);
+                    jsonObject.put("perfil", perfil);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                String message = jsonObject.toString();
+
+                dos.writeUTF(message);
+
+
+                response = dis.readUTF();
+
+                Log.i("mensaje", response);
+
+                return response;
+            } catch (UnknownHostException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+
+                response = "UnknownHostException: " + e.toString();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                response = "IOException: " + e.toString();
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+
+            super.onPostExecute(s);
+            Log.i("mensaje","respuesta solicitud camion "+s);
+        }
+    }
+
 
     private class LoadImage extends AsyncTask<String, String, Bitmap> {
         ProgressDialog loading;
@@ -581,6 +666,13 @@ Button solicita,aborda, chofer;
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(arg0.getPosition()));
                 ubicacionActual = arg0.getPosition();
 
+                double distanciaparada=distancia(ubicacionActual.latitude,ubicacionActual.longitude,listaParadas.get(paradaMasCercana).latitude,listaParadas.get(paradaMasCercana).longitude)*1000;
+                Log.i("mensaje","distancia con la parada "+distanciaparada);
+                if(distanciaparada<=3){
+                    solicita.setEnabled(true);
+                    //aborda.setEnabled(true);
+                    Toast.makeText(getApplicationContext(), "Ya puedes solicitar un camion",Toast.LENGTH_LONG).show();
+                }
             }
 
             @Override
