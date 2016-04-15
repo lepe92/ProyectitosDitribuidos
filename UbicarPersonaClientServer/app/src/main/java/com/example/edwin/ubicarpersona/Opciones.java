@@ -15,7 +15,9 @@ import android.widget.Toast;
 import java.lang.reflect.Array;
 
 public class Opciones extends AppCompatActivity {
-String opcion;
+String opcion, ubicacion;
+    // String mDrawableName = "bus142";
+    //int resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,8 +38,11 @@ String opcion;
         if(extras == null) {
             opcion = null;
         } else {
-            opcion= extras.getString("opciones");
+            String temp[]=extras.getString("opciones").split("!");
+            opcion=temp[1];
             Log.i("mensaje", opcion);
+            ubicacion=temp[0];
+            Log.i("mensaje", "ubicacion "+temp[0]);
         }
 
         String [] opciones=opcion.split(",");
