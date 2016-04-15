@@ -103,6 +103,7 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
     protected DataOutputStream dos;
     protected DataInputStream dis;
     int colorcito = 0;
+    int camionCercano=2;
     ArrayList<LatLng> coordList = new ArrayList<LatLng>();
     //se sustituirá por la del gps posteriormente
     protected LatLng ubicacionActual = new LatLng(20.732360000000003, -103.35151);
@@ -1061,8 +1062,13 @@ Button solicita,aborda, chofer;
                 JSONObject explrObject = jsonArray.getJSONObject(i);
                 //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
                 idcamiones.add(explrObject.getString("idcamion"));
+                Log.i("mensaje","idcamion "+idcamiones);
                 nombrecamiones.add(explrObject.getString("nombre"));
-                Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre") + " capacidad" + explrObject.getString("capacidad")+"Manejado por: "+explrObject.get("chofer")).icon(BitmapDescriptorFactory.fromResource(resID)));
+                Marker m;
+                if(explrObject.getString("idcamion").equals(camionCercano+"")) {
+                    m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre") + " capacidad" + explrObject.getString("capacidad") + "Manejado por: " + explrObject.get("chofer")).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
+                }
+                else{m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre") + " capacidad" + explrObject.getString("capacidad") + "Manejado por: " + explrObject.get("chofer")).icon(BitmapDescriptorFactory.fromResource(resID)));}
                 camioncitos.add(m);
             }
         }
