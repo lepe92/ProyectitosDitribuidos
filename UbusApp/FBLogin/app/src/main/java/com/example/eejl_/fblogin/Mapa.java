@@ -108,10 +108,11 @@ ArrayList<Integer> indiceCamiones;
     protected DataOutputStream dos;
     protected DataInputStream dis;
     int colorcito = 0;
+    TextView llegaen;
     int camionCercano=-1;
     ArrayList<LatLng> coordList = new ArrayList<LatLng>();
     //se sustituirá por la del gps posteriormente
-    protected LatLng ubicacionActual = new LatLng(20.732360000000003, -103.35151);
+    protected LatLng ubicacionActual = new LatLng(20.73232, -103.36);
     protected LatLng center = new LatLng(20.732360000000003, -103.35151);
     int resID;
 Button solicita,aborda, chofer;
@@ -129,6 +130,8 @@ indiceCamiones= new ArrayList<>();
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        llegaen= (TextView)findViewById(R.id.tiempoEspera);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -449,7 +452,7 @@ indiceCamiones= new ArrayList<>();
             int indiceParada=listaIndiceParadas.get(paradaMasCercana);
             int indice=0, mayor=0;
             int max=-1, menor=-1, min=Integer.MAX_VALUE;
-           /*(int j=0; j<idcamiones.size();j++){
+           for(int j=0; j<idcamiones.size();j++){
                if(indiceCamiones.get(j) > max) max = indiceCamiones.get(j);
                if(indiceCamiones.get(j) < min) min = indiceCamiones.get(j);
                if(indiceCamiones.get(j) < indiceParada  && indiceCamiones.get(j) > menor)
@@ -474,18 +477,18 @@ indiceCamiones= new ArrayList<>();
                     indice = j;
                     break;
                 }
-            }*/
-            for(int i=0; i<indiceCamiones.size();i++){
+            }
+            /*for(int i=0; i<indiceCamiones.size();i++){
                 if(indiceCamiones.get(i)<=indiceParada && indiceCamiones.get(i)>mayor){
                     mayor=indiceCamiones.get(i);
                     indice=i;
                 }
-            }
+            }*/
             camionCercano=Integer.parseInt(idcamiones.get(indice));
             Log.i("mensaje", "indice parada cercana" + listaIndiceParadas.get(paradaMasCercana));
             Log.i("mensaje","indice camiones"+indiceCamiones);
             Log.i("mensaje","id camiones"+idcamiones);
-            Log.i("mensaje","el cmaion mas cercano es indice "+mayor+" con id "+idcamiones.get(indice));
+            Log.i("mensaje","el camion mas cercano es indice "+proximo+" con id "+idcamiones.get(indice));
         }
 
 
@@ -524,6 +527,7 @@ ruta=temp[1];
                     jsonObject.put("lat", lat);
                     jsonObject.put("lng", lng);
                     jsonObject.put("perfil", perfil);
+                    jsonObject.put("idcamion", camionCercano);
                     jsonObject.put("indiceparada", listaIndiceParadas.get(paradaMasCercana));
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -737,7 +741,7 @@ ruta=temp[1];
 
                 double distanciaparada=distancia(ubicacionActual.latitude,ubicacionActual.longitude,listaParadas.get(paradaMasCercana).latitude,listaParadas.get(paradaMasCercana).longitude)*1000;
                 Log.i("mensaje","distancia con la parada "+distanciaparada);
-                if(distanciaparada<=3){
+                if(distanciaparada<=10){
                     solicita.setEnabled(true);
                     //aborda.setEnabled(true);
                     Toast.makeText(getApplicationContext(), "Ya puedes solicitar un camion",Toast.LENGTH_LONG).show();
@@ -1147,6 +1151,18 @@ indiceCamiones.clear();
                 camioncitos.add(m);
                 idcamiones.add(explrObject.getString("idcamion"));
                 indiceCamiones.add(Integer.parseInt(explrObject.getString("indice")));
+            }
+            Log.i("mensaje","camion cercano id "+camionCercano);
+            Log.i("mensaje","parada mas cercana"+idcamiones);
+            Log.i("mensaje","indice de la parada"+indiceCamiones);
+           // final int mensaje = Log.i("mensaje", "indice de camion " + indiceCamiones.get(idcamiones.indexOf(camionCercano)));
+            //camionCercano=Integer.parseInt(idcamiones.get(indice));
+            if(camionCercano!=-1){
+                //CALCULADR
+                int indiceparada= listaIndiceParadas.get(paradaMasCercana);
+                int indicecamion=indiceCamiones.get(idcamiones.indexOf(camionCercano+""));
+                Log.i("mensaje", "le falta " + (indiceparada - indicecamion)/3);
+llegaen.setText("Tu camión llega en "+(indiceparada - indicecamion)/3+" segundos");
             }
         }
 
