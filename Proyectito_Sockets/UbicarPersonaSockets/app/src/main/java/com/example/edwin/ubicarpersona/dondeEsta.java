@@ -31,7 +31,8 @@ import java.net.UnknownHostException;
 
 public class dondeEsta extends AppCompatActivity {
     private static final String JSON_URL = "http://jimenezlepe.comuv.com/consultaubicacion.php";
-private static final String IP="10.0.5.113";
+//private static final String IP="10.0.5.113";
+private static final String IP="10.0.5.108";
     String nombre="";
     TextView t1;
     protected DataOutputStream dos;

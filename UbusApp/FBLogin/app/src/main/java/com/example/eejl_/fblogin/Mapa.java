@@ -81,6 +81,7 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
     String paradas = "";
     List<LatLng> pontos;
     ArrayList<Marker> camioncitos;
+ArrayList<Integer> indiceCamiones;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
     private boolean isReceiverRegistered;
     String token = "";
@@ -88,6 +89,7 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
     String resultado = "";
     String idbus = "";
     ArrayList<LatLng> listaParadas;
+    ArrayList<Integer> listaIndiceParadas;
     int paradaMasCercana=0;
     Bitmap bitmap;
     String destination, origin;
@@ -103,7 +105,7 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
     protected DataOutputStream dos;
     protected DataInputStream dis;
     int colorcito = 0;
-    int camionCercano=2;
+    int camionCercano=-1;
     ArrayList<LatLng> coordList = new ArrayList<LatLng>();
     //se sustituirá por la del gps posteriormente
     protected LatLng ubicacionActual = new LatLng(20.732360000000003, -103.35151);
@@ -112,7 +114,9 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
 Button solicita,aborda, chofer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+indiceCamiones= new ArrayList<>();
         listaParadas= new ArrayList<>();
+        listaIndiceParadas=new ArrayList<>();
         camioncitos = new ArrayList<>();
         idcamiones = new ArrayList<>();
         nombrecamiones = new ArrayList<>();
@@ -422,7 +426,7 @@ Button solicita,aborda, chofer;
     public class SolicitarCamion extends AsyncTask<String, Void, String> {
 
       //  String dstAddress = "10.0.5.196";
-      String dstAddress = "10.0.5.113";
+      String dstAddress = "10.0.5.115";
         int dstPort = 5000;
         String response = "";
         String ruta, lat, lng, perfil;
@@ -455,10 +459,27 @@ Button solicita,aborda, chofer;
                 try {
                     //ubicacion y ruta
                     String temp[] = Ruta[0].split("!");
+ruta=temp[1];
+                    if(ruta.contains("142")){
+                        ruta="142";
+                    }
+                    else if(ruta.contains("300")){
+                        ruta="300";
+                    }
+                    else if(ruta.contains("602")){
+                        ruta="602";
+                    }
+                    else if(ruta.contains("500")){
+                        ruta="500";
+                    }
+                    else if(ruta.contains("25")){
+                        ruta="25";
+                    }
                     jsonObject.put("Ruta", ruta);
                     jsonObject.put("lat", lat);
                     jsonObject.put("lng", lng);
                     jsonObject.put("perfil", perfil);
+                    jsonObject.put("indiceparada", listaIndiceParadas.get(paradaMasCercana));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -499,7 +520,8 @@ Button solicita,aborda, chofer;
         protected void onPostExecute(String s) {
 
             super.onPostExecute(s);
-            Log.i("mensaje","respuesta solicitud camion "+s);
+            Log.i("mensaje", "respuesta solicitud camion " + s);
+            camionCercano=Integer.parseInt(s);
         }
     }
 
@@ -828,7 +850,7 @@ Button solicita,aborda, chofer;
     public class Desuscripcion extends AsyncTask<String, Void, String> {
         // String dstAddress="10.0.5.121";
         //String dstAddress="10.0.5.241";
-        String dstAddress = "10.0.5.113";
+        String dstAddress = "10.0.5.115";
        // String dstAddress = "10.0.5.196";
 
         int dstPort = 5000;
@@ -895,7 +917,7 @@ Button solicita,aborda, chofer;
         // String dstAddress="10.0.5.121";
         //String dstAddress="10.0.5.241";
        // String dstAddress = "10.0.5.196";
-        String dstAddress = "10.0.5.113";
+        String dstAddress = "10.0.5.115";
         //String dstAddress="192.168.1.70";
         int dstPort = 5000;
         String response = "";
@@ -1047,7 +1069,7 @@ Button solicita,aborda, chofer;
 
         // Add a marker in Sydney and move the camera
 
-
+indiceCamiones.clear();
         for (int i = 0; i < camioncitos.size(); i++) {
             camioncitos.get(i).remove();
         }
@@ -1067,11 +1089,19 @@ Button solicita,aborda, chofer;
                 //Log.i("mensaje","idcamion "+idcamiones);
                 nombrecamiones.add(explrObject.getString("nombre"));
                 Marker m;
+                Log.i("mensaje","camion cercano "+camionCercano);
                 if(explrObject.getString("idcamion").equals(camionCercano+"")) {
                     m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre") + " capacidad" + explrObject.getString("capacidad") + "Manejado por: " + explrObject.get("chofer")).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
+                    //tiempoDeArribo();
+                    int falta=listaIndiceParadas.get(paradaMasCercana)-indiceCamiones.get(camionCercano);
+                    Log.i("mensaje","faltan "+falta+" indice");
                 }
-                else{m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre") + " capacidad" + explrObject.getString("capacidad") + "Manejado por: " + explrObject.get("chofer")).icon(BitmapDescriptorFactory.fromResource(resID)));}
+                else{
+                    m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre") + " capacidad" + explrObject.getString("capacidad") + "Manejado por: " + explrObject.get("chofer")).icon(BitmapDescriptorFactory.fromResource(resID)));
+                }
                 camioncitos.add(m);
+                idcamiones.add(explrObject.getString("idcamion"));
+                indiceCamiones.add(Integer.parseInt(explrObject.getString("indice")));
             }
         }
 
@@ -1079,6 +1109,8 @@ Button solicita,aborda, chofer;
         catch (Exception io) {
         }
     }
+
+
 
     public void dibujarParadas() {
        // MarkerOptions m = new MarkerOptions().position(ubicacionActual).title("Mi ubicacion").draggable(true);
@@ -1094,6 +1126,7 @@ Button solicita,aborda, chofer;
                 //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
                 mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("-lat")), Double.parseDouble(explrObject.getString("-lng")))).icon(BitmapDescriptorFactory.fromResource(R.drawable.busstation)));
                 listaParadas.add(new LatLng(Double.parseDouble(explrObject.getString("-lat")), Double.parseDouble(explrObject.getString("-lng"))));
+            listaIndiceParadas.add(Integer.parseInt(explrObject.getString("-indice")));
             }
             irAmasCercana();
         }

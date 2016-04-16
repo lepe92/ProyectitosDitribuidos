@@ -52,7 +52,8 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
     private static final String JSON_URL = "http://jimenezlepe.comuv.com/solicitajson.php";
     private static final String JSON_URL2 = "http://www.jimenezlepe.comuv.com/insertarnombre.php";
-    private static final String IP="10.0.5.113";
+    //private static final String IP="10.0.5.113";
+    private static final String IP="10.0.5.108";
 
     String jsonresult;
     ListView ls;
