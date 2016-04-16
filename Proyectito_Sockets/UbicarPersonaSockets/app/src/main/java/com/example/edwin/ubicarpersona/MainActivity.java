@@ -53,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String JSON_URL = "http://jimenezlepe.comuv.com/solicitajson.php";
     private static final String JSON_URL2 = "http://www.jimenezlepe.comuv.com/insertarnombre.php";
     //private static final String IP="10.0.5.113";
-    private static final String IP="10.0.5.108";
-
+    //private static final String IP="10.0.5.108";
+    private static final String IP="192.168.1.150";
     String jsonresult;
     ListView ls;
     final Context context = this;
@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(MainActivity.this, dondeEsta.class);
                 String strName = ls.getItemAtPosition(position).toString();
                 i.putExtra("nombre", strName);
+                i.putExtra("mac", macpropia);
                 startActivity(i);
 
 

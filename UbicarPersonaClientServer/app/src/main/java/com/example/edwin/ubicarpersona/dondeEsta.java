@@ -235,7 +235,8 @@ public class dondeEsta extends AppCompatActivity {
                 JSONObject m = arr.getJSONObject(i);
                 if(m.getString("ubicacion").equals("null")){cad="No sabemos donde está";}
                 else{
-                cad+= m.getString("nombre")+" estuvo en "+m.getString("ubicacion") +"en la fecha "+m.getString("fecha");}
+                cad+= m.getString("nombre")+" estuvo en "+m.getString("ubicacion") +"en la fecha "+m.getString("fecha");
+                }
                 //Toast.makeText(getApplicationContext(),arr.getString(i),Toast.LENGTH_LONG).show();
                 Log.i("mensaje", m.getString("nombre"));
                 ubicacion=m.getString("ubicacion");
@@ -244,7 +245,7 @@ public class dondeEsta extends AppCompatActivity {
 
 
 
-            if(ubicacionBuscante.equals("null") ||  ubicacionBuscante.equals(ubicacion)){
+                       if(ubicacionBuscante.equals("null") ||  ubicacionBuscante.equals(ubicacion)){
                 String mDrawableName = ubicacion;
                 Log.i("mensaje", ubicacion);
                 resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
@@ -254,21 +255,21 @@ public class dondeEsta extends AppCompatActivity {
                     String mDrawableName = "bc";
                     Log.i("mensaje", ubicacion);
                     resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
-                cad+="Tu estás en "+ubicacionBuscante;
+                    cad+="Tu estás en "+ubicacionBuscante;
                 }
-               else if((ubicacion.equals("biblioteca") && ubicacionBuscante.equals("laboratorio"))||ubicacion.equals("laboratorio") && ubicacionBuscante.equals("biblioteca")){
+                else if((ubicacion.equals("biblioteca") && ubicacionBuscante.equals("laboratorio"))||ubicacion.equals("laboratorio") && ubicacionBuscante.equals("biblioteca")){
                     String mDrawableName = "bl";
                     Log.i("mensaje", ubicacion);
                     resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
                     cad+="Tu estás en "+ubicacionBuscante;
                 }
-               else if((ubicacion.equals("biblioteca") && ubicacionBuscante.equals("salon"))||ubicacion.equals("salon") && ubicacionBuscante.equals("biblioteca")){
+                else if((ubicacion.equals("biblioteca") && ubicacionBuscante.equals("salon"))||ubicacion.equals("salon") && ubicacionBuscante.equals("biblioteca")){
                     String mDrawableName = "bs";
                     Log.i("mensaje", ubicacion);
                     resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
                     cad+="Tu estás en "+ubicacionBuscante;
                 }
-               else  if((ubicacion.equals("comedor") && ubicacionBuscante.equals("laboratorio"))||ubicacion.equals("laboratorio") && ubicacionBuscante.equals("comedor")){
+                else  if((ubicacion.equals("comedor") && ubicacionBuscante.equals("laboratorio"))||ubicacion.equals("laboratorio") && ubicacionBuscante.equals("comedor")){
                     String mDrawableName = "cl";
                     Log.i("mensaje", ubicacion);
                     resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
