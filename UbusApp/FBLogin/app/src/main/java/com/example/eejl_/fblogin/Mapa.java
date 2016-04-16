@@ -78,6 +78,9 @@ import java.util.TimerTask;
 
 public class Mapa extends FragmentActivity implements OnMapReadyCallback, LocationListener {
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    String IP="192.168.1.150";
+    //String IP="10.0.5.128";
+    //String IP="10.0.5.121";
     String paradas = "";
     List<LatLng> pontos;
     ArrayList<Marker> camioncitos;
@@ -379,7 +382,10 @@ indiceCamiones= new ArrayList<>();
 
         // LatLng sydney=ubicacionActual;
         //descomentar cuando se requiera realmente la ubicacion del gps
-        ubicacionActual = new LatLng(lat, lng);
+
+        /////////////////////////////////////UBICACION FIJA///////////////////////////
+     //   ubicacionActual = new LatLng(lat, lng);
+        ////////////DESCOMENTAR PARA UBICACION REAL//////////////////////////
         LatLng sydney = ubicacionActual;
         MarkerOptions m = new MarkerOptions().position(sydney).title("Mi ubicacion").draggable(true);
         //m.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bus));
@@ -426,7 +432,7 @@ indiceCamiones= new ArrayList<>();
     public class SolicitarCamion extends AsyncTask<String, Void, String> {
 
       //  String dstAddress = "10.0.5.196";
-      String dstAddress = "10.0.5.115";
+      String dstAddress = IP;
         int dstPort = 5000;
         String response = "";
         String ruta, lat, lng, perfil;
@@ -440,7 +446,46 @@ indiceCamiones= new ArrayList<>();
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            int indiceParada=listaIndiceParadas.get(paradaMasCercana);
+            int indice=0, mayor=0;
+            int max=-1, menor=-1, min=Integer.MAX_VALUE;
+           /*(int j=0; j<idcamiones.size();j++){
+               if(indiceCamiones.get(j) > max) max = indiceCamiones.get(j);
+               if(indiceCamiones.get(j) < min) min = indiceCamiones.get(j);
+               if(indiceCamiones.get(j) < indiceParada  && indiceCamiones.get(j) > menor)
+                   menor = indiceCamiones.get(j);
+           }
+            int proximo=0;
 
+            if(indiceParada == 0)
+                proximo = max;
+            else if(indiceParada == 20){
+                if(menor > 0)
+                    proximo = menor;
+                else
+                    proximo = max;
+            }
+            else
+                proximo = menor;
+            for(int j=0; j<indiceCamiones.size(); j++)
+            {
+
+                if(indiceCamiones.get(j) == proximo){
+                    indice = j;
+                    break;
+                }
+            }*/
+            for(int i=0; i<indiceCamiones.size();i++){
+                if(indiceCamiones.get(i)<=indiceParada && indiceCamiones.get(i)>mayor){
+                    mayor=indiceCamiones.get(i);
+                    indice=i;
+                }
+            }
+            camionCercano=Integer.parseInt(idcamiones.get(indice));
+            Log.i("mensaje", "indice parada cercana" + listaIndiceParadas.get(paradaMasCercana));
+            Log.i("mensaje","indice camiones"+indiceCamiones);
+            Log.i("mensaje","id camiones"+idcamiones);
+            Log.i("mensaje","el cmaion mas cercano es indice "+mayor+" con id "+idcamiones.get(indice));
         }
 
 
@@ -521,7 +566,7 @@ ruta=temp[1];
 
             super.onPostExecute(s);
             Log.i("mensaje", "respuesta solicitud camion " + s);
-            camionCercano=Integer.parseInt(s);
+           // camionCercano=Integer.parseInt(s);
         }
     }
 
@@ -850,7 +895,7 @@ ruta=temp[1];
     public class Desuscripcion extends AsyncTask<String, Void, String> {
         // String dstAddress="10.0.5.121";
         //String dstAddress="10.0.5.241";
-        String dstAddress = "10.0.5.115";
+        String dstAddress = IP;
        // String dstAddress = "10.0.5.196";
 
         int dstPort = 5000;
@@ -917,7 +962,7 @@ ruta=temp[1];
         // String dstAddress="10.0.5.121";
         //String dstAddress="10.0.5.241";
        // String dstAddress = "10.0.5.196";
-        String dstAddress = "10.0.5.115";
+        String dstAddress = IP;
         //String dstAddress="192.168.1.70";
         int dstPort = 5000;
         String response = "";
@@ -1085,16 +1130,16 @@ indiceCamiones.clear();
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject explrObject = jsonArray.getJSONObject(i);
                 //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
-                idcamiones.add(explrObject.getString("idcamion"));
+                //idcamiones.add(explrObject.getString("idcamion"));
                 //Log.i("mensaje","idcamion "+idcamiones);
                 nombrecamiones.add(explrObject.getString("nombre"));
                 Marker m;
-                Log.i("mensaje","camion cercano "+camionCercano);
+                //Log.i("mensaje","camion cercano "+camionCercano);
                 if(explrObject.getString("idcamion").equals(camionCercano+"")) {
                     m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre") + " capacidad" + explrObject.getString("capacidad") + "Manejado por: " + explrObject.get("chofer")).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
                     //tiempoDeArribo();
-                    int falta=listaIndiceParadas.get(paradaMasCercana)-indiceCamiones.get(camionCercano);
-                    Log.i("mensaje","faltan "+falta+" indice");
+                  //  int falta=listaIndiceParadas.get(paradaMasCercana)-indiceCamiones.get(camionCercano);
+//                    Log.i("mensaje","faltan "+falta+" indice");
                 }
                 else{
                     m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre") + " capacidad" + explrObject.getString("capacidad") + "Manejado por: " + explrObject.get("chofer")).icon(BitmapDescriptorFactory.fromResource(resID)));

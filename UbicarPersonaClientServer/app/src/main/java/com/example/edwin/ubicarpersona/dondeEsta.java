@@ -35,6 +35,7 @@ public class dondeEsta extends AppCompatActivity {
     //private static final String JSON_URL2 = "http://distribuidos.net23.net/consultaubicacion.php";
     String JSON_URL="";
     String nombre="";
+    String macpropia="";
     TextView t1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +53,7 @@ public class dondeEsta extends AppCompatActivity {
         } else {
             nombre= extras.getString("nombre");
             JSON_URL=extras.getString("url");
+            macpropia=extras.getString("mac");
         Log.i("mensaje",nombre);
         }
 
@@ -78,6 +80,7 @@ public class dondeEsta extends AppCompatActivity {
                     URL url = new URL(uri);
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("nombre", nombre);
+                    jsonObject.put("macp", macpropia);
                     String message = jsonObject.toString();
 
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -222,6 +225,7 @@ public class dondeEsta extends AppCompatActivity {
     public void procesarResultado(String jsonresult) {
         Toast.makeText(getApplicationContext(), jsonresult, Toast.LENGTH_LONG).show();
         JSONObject obj = null;
+        String ubicacionBuscante="";
         try {
             obj = new JSONObject(jsonresult);
             JSONArray arr = obj.getJSONArray("result");
@@ -235,13 +239,56 @@ public class dondeEsta extends AppCompatActivity {
                 //Toast.makeText(getApplicationContext(),arr.getString(i),Toast.LENGTH_LONG).show();
                 Log.i("mensaje", m.getString("nombre"));
                 ubicacion=m.getString("ubicacion");
+                ubicacionBuscante=m.getString("ubicacionBuscante");
             }
+
+
+
+            if(ubicacionBuscante.equals("null") ||  ubicacionBuscante.equals(ubicacion)){
+                String mDrawableName = ubicacion;
+                Log.i("mensaje", ubicacion);
+                resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
+            }
+            else{
+                if((ubicacion.equals("biblioteca") && ubicacionBuscante.equals("comedor"))||ubicacion.equals("comedor") && ubicacionBuscante.equals("biblioteca")){
+                    String mDrawableName = "bc";
+                    Log.i("mensaje", ubicacion);
+                    resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
+                cad+="Tu estás en "+ubicacionBuscante;
+                }
+               else if((ubicacion.equals("biblioteca") && ubicacionBuscante.equals("laboratorio"))||ubicacion.equals("laboratorio") && ubicacionBuscante.equals("biblioteca")){
+                    String mDrawableName = "bl";
+                    Log.i("mensaje", ubicacion);
+                    resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
+                    cad+="Tu estás en "+ubicacionBuscante;
+                }
+               else if((ubicacion.equals("biblioteca") && ubicacionBuscante.equals("salon"))||ubicacion.equals("salon") && ubicacionBuscante.equals("biblioteca")){
+                    String mDrawableName = "bs";
+                    Log.i("mensaje", ubicacion);
+                    resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
+                    cad+="Tu estás en "+ubicacionBuscante;
+                }
+               else  if((ubicacion.equals("comedor") && ubicacionBuscante.equals("laboratorio"))||ubicacion.equals("laboratorio") && ubicacionBuscante.equals("comedor")){
+                    String mDrawableName = "cl";
+                    Log.i("mensaje", ubicacion);
+                    resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
+                    cad+="Tu estás en "+ubicacionBuscante;
+                }
+                else if((ubicacion.equals("comedor") && ubicacionBuscante.equals("salon"))||ubicacion.equals("salon") && ubicacionBuscante.equals("comedor")){
+                    String mDrawableName = "cs";
+                    Log.i("mensaje", ubicacion);
+                    resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
+                    cad+="Tu estás en "+ubicacionBuscante;
+                }
+                else if((ubicacion.equals("laboratorio") && ubicacionBuscante.equals("salon"))||ubicacion.equals("salon") && ubicacionBuscante.equals("laboratorio")){
+                    String mDrawableName = "ls";
+                    Log.i("mensaje", ubicacion);
+                    resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
+                    cad+="Tu estás en "+ubicacionBuscante;
+                }
+            }
+
             t1.setText(cad);
-
-            String mDrawableName = ubicacion;
-            Log.i("mensaje",ubicacion);
-            resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
-
             imageView = (ImageView) findViewById(R.id.imagen);
             imageView.setImageResource(resID);
 

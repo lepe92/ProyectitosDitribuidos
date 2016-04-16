@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(MainActivity.this, dondeEsta.class);
                 String strName = ls.getItemAtPosition(position).toString();
                 i.putExtra("nombre", strName);
+                i.putExtra("mac", macpropia);
                 if(servidor2){
                 i.putExtra("url", "http://distribuidos.net23.net/consultaubicacion.php");}
                 else{
