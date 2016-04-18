@@ -78,7 +78,7 @@ import java.util.TimerTask;
 
 public class Mapa extends FragmentActivity implements OnMapReadyCallback, LocationListener {
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    String IP="192.168.1.150";
+    String IP="192.168.1.70";
     //String IP="10.0.5.128";
     //String IP="10.0.5.121";
     String paradas = "";
@@ -1220,7 +1220,7 @@ llegaen.setText("Tu camión llega en "+(indiceparada - indicecamion)/3+" segundo
         }
 
         protected String doInBackground(String... args) {
-            String stringUrl = "http://maps.googleapis.com/maps/api/directions/json?origin=" + origin+ "&destination=" + destination+ "&sensor=false";
+            String stringUrl = "http://maps.googleapis.com/maps/api/directions/json?origin=" + origin+ "&destination=" + destination+ "&sensor=false&mode=walking";
             StringBuilder response = new StringBuilder();
             try {
                 URL url = new URL(stringUrl);
