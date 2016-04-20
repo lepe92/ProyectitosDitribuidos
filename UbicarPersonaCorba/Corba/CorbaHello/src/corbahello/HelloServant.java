@@ -52,7 +52,7 @@ public class HelloServant extends HelloApp.HelloPOA {
     @Override
     public String sayHello(String msj) {
 
-        servidor2 = !exists("http://jimenezlepe.comuv.com/default.php");
+        servidor2 = !exists("http://10.0.5.109/Proyecto/default.php");
 
         String respuesta = "";
 //aqui se hará la machaaca
@@ -270,9 +270,9 @@ public class HelloServant extends HelloApp.HelloPOA {
             URL url;
             if (!servidor2) {
                 //temporal solo para que jale con el segundo servidor
-                url = new URL("http://www.jimenezlepe.comuv.com/insertarnombre.php");
+                url = new URL("http://10.0.5.109/Proyecto/insertarnombre.php");
             } else {
-                url = new URL("http://www.distribuidos.net23.net/insertarnombre.php");
+                url = new URL("http://10.0.5.113/Proyecto/insertarnombre.php");
             }
             conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000);
@@ -330,9 +330,9 @@ public class HelloServant extends HelloApp.HelloPOA {
         try {
             URL url;
             if (!servidor2) {
-                url = new URL("http://jimenezlepe.comuv.com/solicitajson.php");
+                url = new URL("http://10.0.5.109/Proyecto/solicitajson.php");
             } else {
-                url = new URL("http://distribuidos.net23.net/solicitajson.php");
+                url = new URL("http://10.0.5.113/Proyecto/solicitajson.php");
             }
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             StringBuilder sb = new StringBuilder();
@@ -358,9 +358,9 @@ public class HelloServant extends HelloApp.HelloPOA {
         try {
             URL url;
             if (!servidor2) {
-                url = new URL("http://jimenezlepe.comuv.com/consultaubicacion.php");
+                url = new URL("http://10.0.5.109/Proyecto/consultaubicacion.php");
             } else {
-                url = new URL("http://distribuidos.net23.net/consultaubicacion.php");
+                url = new URL("http://10.0.5.113/Proyecto/consultaubicacion.php");
             }
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con = (HttpURLConnection) url.openConnection();
@@ -409,9 +409,9 @@ public class HelloServant extends HelloApp.HelloPOA {
         BufferedReader bufferedReader = null;
         URL url;
         if (!servidor2) {
-            url = new URL("http://jimenezlepe.comuv.com/solicita.php");
+            url = new URL("http://10.0.5.109/Proyecto/solicita.php");
         } else {
-            url = new URL("http://distribuidos.net23.net/solicita.php");
+            url = new URL("http://10.0.5.113/Proyecto/solicita.php");
         }
         conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(10000);
