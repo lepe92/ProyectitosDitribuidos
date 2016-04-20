@@ -46,11 +46,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String JSON_URL = "http://jimenezlepe.comuv.com/solicitajson.php";
-    private static final String JSON_URL2 = "http://www.jimenezlepe.comuv.com/insertarnombre.php";
+    //private static final String JSON_URL = "http://jimenezlepe.comuv.com/solicitajson.php";
+    private static final String JSON_URL = "http://10.0.5.109/Proyecto/solicitajson.php";
+    private static final String JSON_URL2 = "http://10.0.5.109/Proyecto/insertarnombre.php";
 
-    private static final String JSON_URL11 = "http://distribuidos.net23.net/solicitajson.php";
-    private static final String JSON_URL22 = "http://distribuidos.net23.net/insertarnombre.php";
+    private static final String JSON_URL11 = "http://10.0.5.113/Proyecto/solicitajson.php";
+    private static final String JSON_URL22 = "http://10.0.5.113/Proyecto/insertarnombre.php";
     String jsonresult;
     ListView ls;
     final Context context = this;
@@ -81,9 +82,9 @@ public class MainActivity extends AppCompatActivity {
                 i.putExtra("nombre", strName);
                 i.putExtra("mac", macpropia);
                 if(servidor2){
-                i.putExtra("url", "http://distribuidos.net23.net/consultaubicacion.php");}
+                i.putExtra("url", "http://10.0.5.113/Proyecto/consultaubicacion.php");}
                 else{
-                    i.putExtra("url", "http://jimenezlepe.comuv.com/consultaubicacion.php");
+                    i.putExtra("url", "http://10.0.5.109/Proyecto/consultaubicacion.php");
                 }
                 startActivity(i);
 
@@ -215,7 +216,7 @@ String respuesta="";
 
                     conn = (HttpURLConnection) url.openConnection();
                     conn.setReadTimeout(10000 /*milliseconds*/);
-                    conn.setConnectTimeout(15000 /* milliseconds */);
+                    conn.setConnectTimeout(30000 /* milliseconds */);
                     conn.setRequestMethod("POST");
                     conn.setDoInput(true);
                     conn.setDoOutput(true);
@@ -497,10 +498,10 @@ String respuesta="";
                     //http://jimenezlepe.comuv.com/solicita.php
                     URL url;
                     if(servidor2){
-                        url = new URL("http://distribuidos.net23.net/solicita.php");
+                        url = new URL("http://10.0.5.113/Proyecto/solicita.php");
                     }
                     else{
-                    url = new URL("http://jimenezlepe.comuv.com/solicita.php");}
+                    url = new URL("http://10.0.5.109/Proyecto/solicita.php");}
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("macd", macajena);
                     jsonObject.put("macp", macpropia);

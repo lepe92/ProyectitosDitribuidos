@@ -112,6 +112,7 @@ public class dondeEsta extends AppCompatActivity {
 
                     String json;
                     while ((json = bufferedReader.readLine()) != null) {
+                        if(json.contains("}]}"))
                         sb.append(json + "\n");
                     }
 
