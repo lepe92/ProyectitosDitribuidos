@@ -33,8 +33,8 @@ import java.net.UnknownHostException;
 public class dondeEsta extends AppCompatActivity {
     private static final String JSON_URL = "http://jimenezlepe.comuv.com/consultaubicacion.php";
 //private static final String IP="10.0.5.113";
-//private static final String IP="10.0.5.108";
-private static final String IP="192.168.1.150";
+private static final String IP="10.0.5.109";//ip server jalil
+//private static final String IP="192.168.1.150";
     int resID;
 
 
@@ -107,7 +107,8 @@ private static final String IP="192.168.1.150";
                 response = dis.readUTF();
 
                 Log.i("mensaje", response);
-                return response;
+                String response2[]=response.split("</table></font>");
+                return response2[response2.length-1];
             } catch (UnknownHostException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
