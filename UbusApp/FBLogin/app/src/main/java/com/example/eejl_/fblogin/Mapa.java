@@ -38,6 +38,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.Profile;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -78,8 +79,9 @@ import java.util.TimerTask;
 
 public class Mapa extends FragmentActivity implements OnMapReadyCallback, LocationListener {
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    String IP="192.168.1.70";
-    //String IP="10.0.5.128";
+    //String IP="192.168.1.70";
+    String IP="10.0.5.247";
+
     //String IP="10.0.5.121";
     String paradas = "";
     List<LatLng> pontos;
@@ -225,11 +227,14 @@ indiceCamiones= new ArrayList<>();
                 String ruta=Ruta[0];//centro de la ruta y nombre de la ruta
                 String ubicacionParadalat=listaParadas.get(paradaMasCercana).latitude+"";
                 String ubicacionParadalng=listaParadas.get(paradaMasCercana).longitude+"";
-                String identificacion="";
+                String identificacion="usuario";
                 SessionManager manager= new SessionManager();
                 String status=manager.getPreferences(Mapa.this, "status");
                 if (status.equals("1")){
                     identificacion=manager.getPreferences(Mapa.this, "correo");
+                }else{
+                    Profile p= Profile.getCurrentProfile();
+                    identificacion=p.getName();
                 }
                 SolicitarCamion sc= new SolicitarCamion(ruta, ubicacionParadalat,ubicacionParadalng,identificacion);
                 sc.execute();
@@ -240,7 +245,36 @@ indiceCamiones= new ArrayList<>();
         aborda.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ProgressDialog loading = ProgressDialog.show(Mapa.this, "Subiendo al camión...", null, true, true);
+                SessionManager manager= new SessionManager();
+                String status=manager.getPreferences(Mapa.this, "status");
+                String identificacion;
+                if (status.equals("1")){
+                    identificacion=manager.getPreferences(Mapa.this, "correo");
+                }else{
+                    Profile p= Profile.getCurrentProfile();
+                    identificacion=p.getName();
+                }
+
+                String temp[] = Ruta[0].split("!");
+               String ruta=temp[1];
+                if(ruta.contains("142")){
+                    ruta="142";
+                }
+                else if(ruta.contains("300")){
+                    ruta="300";
+                }
+                else if(ruta.contains("602")){
+                    ruta="602";
+                }
+                else if(ruta.contains("500")){
+                    ruta="500";
+                }
+                else if(ruta.contains("25")){
+                    ruta="25";
+                }
+                NotificarAbordar m= new NotificarAbordar(ruta,camionCercano+"", identificacion);
+                m.execute();
+                aborda.setEnabled(false);
             }
         });
 
@@ -392,6 +426,7 @@ indiceCamiones= new ArrayList<>();
         LatLng sydney = ubicacionActual;
         MarkerOptions m = new MarkerOptions().position(sydney).title("Mi ubicacion").draggable(true);
         //m.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bus));
+
         mMap.addMarker(m);
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 14));
@@ -489,6 +524,25 @@ indiceCamiones= new ArrayList<>();
             Log.i("mensaje","indice camiones"+indiceCamiones);
             Log.i("mensaje","id camiones"+idcamiones);
             Log.i("mensaje","el camion mas cercano es indice "+proximo+" con id "+idcamiones.get(indice));
+        //Camion cercano es un id usarlo para consultar la imagen del chofer
+            idbus=camionCercano+"";
+            builder = new Dialog(Mapa.this);
+            builder.requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+            builder.setTitle("Tu chofer");
+            builder.getWindow().setBackgroundDrawable(
+                    new ColorDrawable(android.graphics.Color.TRANSPARENT));
+            builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface) {
+                    //nothing;
+                }
+            });
+
+            imageView = new ImageView(Mapa.this);
+            solicita.setEnabled(false);
+
+            LoadImage m=new LoadImage();
+            m.execute();
         }
 
 
@@ -500,6 +554,7 @@ indiceCamiones= new ArrayList<>();
             try {
                 socket = new Socket(dstAddress, dstPort);
                 Log.i("mensaje", "conectado");
+
                 dos = new DataOutputStream(socket.getOutputStream());
                 dis = new DataInputStream(socket.getInputStream());
 
@@ -569,11 +624,104 @@ ruta=temp[1];
         protected void onPostExecute(String s) {
 
             super.onPostExecute(s);
+            //if(s.equals("enterado")){
+                //solicita.setEnabled(false);
+            //}
             Log.i("mensaje", "respuesta solicitud camion " + s);
            // camionCercano=Integer.parseInt(s);
         }
     }
 
+    public class NotificarAbordar extends AsyncTask<String, Void, String> {
+
+
+        String dstAddress = IP;
+        int dstPort = 5000;
+        String response = "";
+        String ruta, idcamion, perfil; //ruta, idcamion, pasajero
+        //ruta, camioncercano, perfil
+        public NotificarAbordar(String ruta, String idcamion, String perfil){
+            this.ruta=ruta;
+            this.perfil=perfil;
+            this.idcamion=idcamion;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+
+        @Override
+        protected String doInBackground(String... arg0) {
+
+            Socket socket = null;
+
+            try {
+                socket = new Socket(dstAddress, dstPort);
+                Log.i("mensaje", "conectado para abordar");
+
+                dos = new DataOutputStream(socket.getOutputStream());
+                dis = new DataInputStream(socket.getInputStream());
+
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("ruta", ruta);
+                    jsonObject.put("idcamion", idcamion);
+                    jsonObject.put("persona", perfil);
+                    jsonObject.put("abordar", "abordar");
+                                    } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                String message = jsonObject.toString();
+
+                dos.writeUTF(message);
+
+
+                response = dis.readUTF();
+
+                Log.i("mensaje", response);
+
+                return response;
+            } catch (UnknownHostException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+
+                response = "UnknownHostException: " + e.toString();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                response = "IOException: " + e.toString();
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+
+            super.onPostExecute(s);
+            //if(s.equals("enterado")){
+            //solicita.setEnabled(false);
+            //}
+            if(s.equals("abordado")){
+
+            }
+            aborda.setEnabled(false);
+            Log.i("mensaje", "respuesta abordar " + s);
+            // camionCercano=Integer.parseInt(s);
+        }
+    }
 
     private class LoadImage extends AsyncTask<String, String, Bitmap> {
         ProgressDialog loading;
@@ -1144,6 +1292,11 @@ indiceCamiones.clear();
                     //tiempoDeArribo();
                   //  int falta=listaIndiceParadas.get(paradaMasCercana)-indiceCamiones.get(camionCercano);
 //                    Log.i("mensaje","faltan "+falta+" indice");
+                    //double distanciaparada=distancia(ubicacionActual.latitude,ubicacionActual.longitude,listaParadas.get(paradaMasCercana).latitude,listaParadas.get(paradaMasCercana).longitude)*1000;
+                    if((explrObject.get("lat").equals(listaParadas.get(paradaMasCercana).latitude+""))&& (explrObject.get("lng").equals(listaParadas.get(paradaMasCercana).longitude+""))){
+                        aborda.setEnabled(true);
+                        Toast.makeText(getApplicationContext(), "Tu ubus ha llegado",Toast.LENGTH_LONG).show();
+                    }
                 }
                 else{
                     m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre") + " capacidad" + explrObject.getString("capacidad") + "Manejado por: " + explrObject.get("chofer")).icon(BitmapDescriptorFactory.fromResource(resID)));
@@ -1162,7 +1315,7 @@ indiceCamiones.clear();
                 int indiceparada= listaIndiceParadas.get(paradaMasCercana);
                 int indicecamion=indiceCamiones.get(idcamiones.indexOf(camionCercano+""));
                 Log.i("mensaje", "le falta " + (indiceparada - indicecamion)/3);
-llegaen.setText("Tu camión llega en "+(indiceparada - indicecamion)/3+" segundos");
+llegaen.setText("Tu camión llega en "+(((indiceparada - indicecamion)/3)/60+1)+" minutos");
             }
         }
 
@@ -1185,7 +1338,7 @@ llegaen.setText("Tu camión llega en "+(indiceparada - indicecamion)/3+" segundo
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject explrObject = jsonArray.getJSONObject(i);
                 //coordList.add(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng"))));
-                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("-lat")), Double.parseDouble(explrObject.getString("-lng")))).icon(BitmapDescriptorFactory.fromResource(R.drawable.busstation)));
+                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("-lat")), Double.parseDouble(explrObject.getString("-lng")))).icon(BitmapDescriptorFactory.fromResource(R.drawable.busstation)).title(explrObject.getString("-indice")));
                 listaParadas.add(new LatLng(Double.parseDouble(explrObject.getString("-lat")), Double.parseDouble(explrObject.getString("-lng"))));
             listaIndiceParadas.add(Integer.parseInt(explrObject.getString("-indice")));
             }
