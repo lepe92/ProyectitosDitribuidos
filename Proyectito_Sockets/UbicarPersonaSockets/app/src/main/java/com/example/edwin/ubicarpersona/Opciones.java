@@ -46,6 +46,7 @@ String opcion,ubicacion;
             Log.i("mensaje", opcion);
             ubicacion=temp[0];
             Log.i("mensaje", "ubicacion "+temp[0]);
+            Toast.makeText(getApplicationContext(),"Estás en "+temp[0],Toast.LENGTH_LONG).show();
             String mDrawableName = ubicacion;
             resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
 

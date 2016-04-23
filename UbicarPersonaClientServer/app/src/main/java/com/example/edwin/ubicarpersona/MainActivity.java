@@ -641,6 +641,7 @@ String respuesta="";
                         int index=0;
                         int mayor=-1000;
                         for (int i = 0; i < btList.size(); i++) {
+                            Log.i("mensaje",itemsAdapter.getItem(i)+" "+btList.get(i)+"");
                             if (btList.get(i) > mayor) {
                                 mayor = btList.get(i);
                                 index = i;

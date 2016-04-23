@@ -81,7 +81,7 @@ public class Mapa extends FragmentActivity implements OnMapReadyCallback, Locati
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     //String IP="192.168.1.70";
     String IP="10.0.5.247";
-
+int llego=0;
     //String IP="10.0.5.121";
     String paradas = "";
     List<LatLng> pontos;
@@ -106,6 +106,7 @@ ArrayList<Integer> indiceCamiones;
     private GoogleMap mMap;
     LocationManager locationManager;
     String Ruta[];
+    Marker ontoy;
     String provider;
     protected DataOutputStream dos;
     protected DataInputStream dis;
@@ -427,7 +428,7 @@ indiceCamiones= new ArrayList<>();
         MarkerOptions m = new MarkerOptions().position(sydney).title("Mi ubicacion").draggable(true);
         //m.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bus));
 
-        mMap.addMarker(m);
+       ontoy= mMap.addMarker(m);
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 14));
 
@@ -522,27 +523,10 @@ indiceCamiones= new ArrayList<>();
             camionCercano=Integer.parseInt(idcamiones.get(indice));
             Log.i("mensaje", "indice parada cercana" + listaIndiceParadas.get(paradaMasCercana));
             Log.i("mensaje","indice camiones"+indiceCamiones);
-            Log.i("mensaje","id camiones"+idcamiones);
-            Log.i("mensaje","el camion mas cercano es indice "+proximo+" con id "+idcamiones.get(indice));
+            Log.i("mensaje", "id camiones" + idcamiones);
+            Log.i("mensaje", "el camion mas cercano es indice " + proximo + " con id " + idcamiones.get(indice));
         //Camion cercano es un id usarlo para consultar la imagen del chofer
-            idbus=camionCercano+"";
-            builder = new Dialog(Mapa.this);
-            builder.requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-            builder.setTitle("Tu chofer");
-            builder.getWindow().setBackgroundDrawable(
-                    new ColorDrawable(android.graphics.Color.TRANSPARENT));
-            builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialogInterface) {
-                    //nothing;
-                }
-            });
 
-            imageView = new ImageView(Mapa.this);
-            solicita.setEnabled(false);
-
-            LoadImage m=new LoadImage();
-            m.execute();
         }
 
 
@@ -629,6 +613,24 @@ ruta=temp[1];
             //}
             Log.i("mensaje", "respuesta solicitud camion " + s);
            // camionCercano=Integer.parseInt(s);
+            idbus=camionCercano+"";
+            builder = new Dialog(Mapa.this);
+            builder.requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+            builder.setTitle("Tu chofer");
+            builder.getWindow().setBackgroundDrawable(
+                    new ColorDrawable(android.graphics.Color.TRANSPARENT));
+            builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface) {
+                    //nothing;
+                }
+            });
+
+            imageView = new ImageView(Mapa.this);
+            solicita.setEnabled(false);
+
+            LoadImage m=new LoadImage();
+            m.execute();
         }
     }
 
@@ -718,6 +720,7 @@ ruta=temp[1];
 
             }
             aborda.setEnabled(false);
+            ontoy.remove();
             Log.i("mensaje", "respuesta abordar " + s);
             // camionCercano=Integer.parseInt(s);
         }
@@ -1294,8 +1297,10 @@ indiceCamiones.clear();
 //                    Log.i("mensaje","faltan "+falta+" indice");
                     //double distanciaparada=distancia(ubicacionActual.latitude,ubicacionActual.longitude,listaParadas.get(paradaMasCercana).latitude,listaParadas.get(paradaMasCercana).longitude)*1000;
                     if((explrObject.get("lat").equals(listaParadas.get(paradaMasCercana).latitude+""))&& (explrObject.get("lng").equals(listaParadas.get(paradaMasCercana).longitude+""))){
-                        aborda.setEnabled(true);
+                        if(llego==0){
+                        aborda.setEnabled(true);}
                         Toast.makeText(getApplicationContext(), "Tu ubus ha llegado",Toast.LENGTH_LONG).show();
+                        llego=1;
                     }
                 }
                 else{

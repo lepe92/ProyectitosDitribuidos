@@ -29,6 +29,7 @@ this.nombre=nombre;
         this.mac=mac;
         this.fecha=fecha;
         this.ubicacion=ubicacion;
+        socket = new DatagramSocket(4326);
     }
 
     public void run() {
@@ -50,7 +51,7 @@ this.nombre=nombre;
                 String dString =  jsonObject.toString()+"@";//new Date().toString();
 
                 buf = dString.getBytes();
-                socket = new DatagramSocket(4326);
+
                 // send it
                 InetAddress group = InetAddress.getByName("232.2.2.2");
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4327);

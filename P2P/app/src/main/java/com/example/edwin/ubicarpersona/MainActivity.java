@@ -77,11 +77,15 @@ public class MainActivity extends AppCompatActivity {
 
         ubicaciones= new ArrayList<Ubicacion>();
 
-        ubicaciones.add(new Ubicacion("30:D6:C9:10:76:66","biblioteca"));
+      /*  ubicaciones.add(new Ubicacion("30:D6:C9:10:76:66","biblioteca"));
         ubicaciones.add(new Ubicacion("F8:0C:F3:A9:CC:E9","comedor"));
         ubicaciones.add(new Ubicacion("30:76:6F:47:B7:BE","laboratorio"));
         ubicaciones.add(new Ubicacion("2C:8A:72:18:F0:49","salon"));
-
+*/
+        ubicaciones.add(new Ubicacion("D2:B8:E6:6D:58:F1", "biblioteca"));
+        ubicaciones.add(new Ubicacion("DB:1B:C8:B8:0D:5C", "comedor"));
+        ubicaciones.add(new Ubicacion("54:27:1E:FD:29:27","laboratorio"));
+        ubicaciones.add(new Ubicacion("D6:4A:38:3E:98:DC","salon"));
         usuarios= new ArrayList<Usuario>();
         ls = (ListView) findViewById(R.id.listView);
 
