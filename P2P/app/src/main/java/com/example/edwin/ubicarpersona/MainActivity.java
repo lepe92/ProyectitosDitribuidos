@@ -51,6 +51,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -89,7 +90,10 @@ lugarActual="";
         ubicaciones.add(new Ubicacion("D2:B8:E6:6D:58:F1", "biblioteca"));
         ubicaciones.add(new Ubicacion("DB:1B:C8:B8:0D:5C", "comedor"));
         ubicaciones.add(new Ubicacion("54:27:1E:FD:29:27","laboratorio"));
-        ubicaciones.add(new Ubicacion("D6:4A:38:3E:98:DC","salon"));
+        //ubicaciones.add(new Ubicacion("D6:4A:38:3E:98:DC","salon"));
+       ubicaciones.add(new Ubicacion("E0:66:78:58:F1:CA","salon"));
+
+        //ubicaciones.add(new Ubicacion("E0:66:78:58:F1:CA","cuarto edwin"));
         usuarios= new ArrayList<Usuario>();
         ls = (ListView) findViewById(R.id.listView);
 
@@ -453,15 +457,40 @@ lugarActual="";
                             //si es igual la mac a una ubicacion decir que estoy en tal lugar
                             Log.i("mensaje","Estoy en "+ubicaciones.get(j).lugar);
                             lugarActual=ubicaciones.get(j).lugar;
-                            try {
-                                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                                Date date = new Date();
 
-                                String fecha=date.toString();
-                                new MulticastServerThread(nombre,macpropia,ubicaciones.get(j).lugar,fecha).start();
+                            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+                            Date now = new Date();
+                            String strDate = sdfDate.format(now);
+
+                            try{
+                                new MulticastServerThread(nombre,macpropia,ubicaciones.get(j).lugar,strDate).start();
                             }catch(IOException exio) {
                                 Log.i("mensaje","error en el multicast");
                             }
+                            //enviar al activitie de opciones
+                            if(tim != null) {
+                                tim.cancel();
+                                tim.purge();
+                                tim = null;
+                            }
+                            if (mB != null) {
+                                mB.cancelDiscovery();
+                                mB=null;
+                            }
+                            Intent m = new Intent(MainActivity.this,Opciones.class);
+                            m.putExtra("ubicacion", lugarActual);
+                            if(lugarActual.equals("biblioteca"))
+                            m.putExtra("opciones", "Prestamo de libro,Registrar,Pagar copias");
+
+                            if(lugarActual.equals("comedor"))
+                                m.putExtra("opciones", "Comprar comida,Comprar postre,Usar maquinita");
+
+                            if(lugarActual.equals("laboratorio"))
+                                m.putExtra("opciones", "Solicitar clave internet,Utilizar equipo x,Pedir ayuda");
+                            if(lugarActual.equals("salon"))
+                                m.putExtra("opciones", "tomar clase, dar de baja, estar de oyente");
+                            startActivity(m);
+
                             break;
                         }
                     }

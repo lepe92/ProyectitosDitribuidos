@@ -68,7 +68,7 @@ public class dondeEsta extends AppCompatActivity {
             ubicacionBusca= extras.getString("ubicacionBusca");
 
         Log.i("mensaje",nombre);
-            String cad="";
+            String cad=nombre+" estaba en "+ubicacion +" en la fecha "+fecha+"\n";
             if(ubicacionBusca.equals("null") ||  ubicacionBusca.equals(ubicacion)){
                 String mDrawableName = ubicacion;
                 Log.i("mensaje", ubicacion);

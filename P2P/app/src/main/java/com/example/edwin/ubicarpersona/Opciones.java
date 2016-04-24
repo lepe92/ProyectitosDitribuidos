@@ -41,11 +41,11 @@ String opcion,ubicacion;
         if(extras == null) {
             opcion = null;
         } else {
-            String temp[]=extras.getString("opciones").split("!");
-            opcion=temp[1]+",Mostrar mapa";
-            Log.i("mensaje", opcion);
-            ubicacion=temp[0];
-            Log.i("mensaje", "ubicacion "+temp[0]);
+          opcion=extras.getString("opciones")+",Mostrar mapa";
+
+
+
+            ubicacion=extras.getString("ubicacion");
             String mDrawableName = ubicacion;
             resID = getResources().getIdentifier(mDrawableName, "drawable", getPackageName());
 
