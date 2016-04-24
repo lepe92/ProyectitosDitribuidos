@@ -1,6 +1,7 @@
 package com.example.edwin.ubicarpersona;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,11 +23,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -453,22 +457,76 @@ lugarActual="";
 
                 for(int i=0; i<detectados.size();i++){
                     for(int j=0; j<ubicaciones.size();j++){
-                        if(ubicaciones.get(j).mac.equals(detectados.get(i))){
+                        if(ubicaciones.get(j).mac.equals(detectados.get(i))) {
                             //si es igual la mac a una ubicacion decir que estoy en tal lugar
-                            Log.i("mensaje","Estoy en "+ubicaciones.get(j).lugar);
-                            lugarActual=ubicaciones.get(j).lugar;
+                            Log.i("mensaje", "Estoy en " + ubicaciones.get(j).lugar);
+                            lugarActual = ubicaciones.get(j).lugar;
 
                             SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
                             Date now = new Date();
                             String strDate = sdfDate.format(now);
 
-                            try{
-                                new MulticastServerThread(nombre,macpropia,ubicaciones.get(j).lugar,strDate).start();
-                            }catch(IOException exio) {
-                                Log.i("mensaje","error en el multicast");
+                            try {
+                                new MulticastServerThread(nombre, macpropia, ubicaciones.get(j).lugar, strDate).start();
+                            } catch (IOException exio) {
+                                Log.i("mensaje", "error en el multicast");
                             }
+                            AlertDialog.Builder builderSingle = new AlertDialog.Builder(MainActivity.this);
+
+                            builderSingle.setTitle("Estás en " + lugarActual);
+
+                            final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                                    MainActivity.this,
+                                    android.R.layout.select_dialog_singlechoice);
+
+                            //solamente si hay camioncitos del simulador comienza a realizar esto
+                            if (lugarActual.equals("biblioteca"))
+                                {
+                                arrayAdapter.add("Prestamo de libro");
+                            arrayAdapter.add("Registrar");
+                            arrayAdapter.add("Pagar copias");
+                        } else if (lugarActual.equals("comedor"))
+                            {
+                                arrayAdapter.add("Comprar comida");
+                                arrayAdapter.add("Comprar postre");
+                                arrayAdapter.add("Usar maquinita");
+                            }
+                            else  if (lugarActual.equals("laboratorio"))
+                            {
+                                arrayAdapter.add("Solicitar clave de internet");
+                                arrayAdapter.add("Utilizar equipo");
+                                arrayAdapter.add("Pedir ayuda");
+                            }
+                            else  if (lugarActual.equals("salon"))
+                            {
+                                arrayAdapter.add("Entrar a clase");
+                                arrayAdapter.add("Estar de oyente");
+                                arrayAdapter.add("Dar de baja");
+                            }
+
+                                builderSingle.setNegativeButton(
+                                        "atrás",
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+
+                            builderSingle.setAdapter(
+                                    arrayAdapter,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                            }
+                                        });
+                                builderSingle.show();
+                            }//fin del if que contiene id de camiones
+
+                        }
                             //enviar al activitie de opciones
-                            if(tim != null) {
+                           /* if(tim != null) {
                                 tim.cancel();
                                 tim.purge();
                                 tim = null;
@@ -490,13 +548,12 @@ lugarActual="";
                             if(lugarActual.equals("salon"))
                                 m.putExtra("opciones", "tomar clase, dar de baja, estar de oyente");
                             startActivity(m);
-
+*/
                             break;
-                        }
+
                     }
                 }
             }
-        }
     };
 
     @Override
