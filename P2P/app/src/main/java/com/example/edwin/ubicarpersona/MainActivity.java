@@ -50,12 +50,16 @@ import java.net.MulticastSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
     ListView ls;
+    Timer tim;
     final Context context = this;
     ArrayAdapter<String> itemsAdapter;
     ArrayList<Usuario> usuarios;
@@ -65,16 +69,16 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_ENABLE_BT = 1;
     String macpropia, nombred, nombre, macajena;
     int rssi1;
-
+String lugarActual;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+lugarActual="";
         nombre="prueba";
-
+        itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
         ubicaciones= new ArrayList<Ubicacion>();
 
       /*  ubicaciones.add(new Ubicacion("30:D6:C9:10:76:66","biblioteca"));
@@ -94,15 +98,31 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Intent i = new Intent(MainActivity.this, dondeEsta.class);
-                String strName = ls.getItemAtPosition(position).toString();
-                i.putExtra("nombre", strName);
-                i.putExtra("mac", macpropia);
+
+                //i.putExtra("nombre", strName);
+
+                Usuario temp=usuarios.get(position);
+                i.putExtra("nombre", temp.nombre);
+                i.putExtra("mac", temp.mac);
+                i.putExtra("ubicacion", temp.ubicacion);
+                i.putExtra("fecha", temp.fecha);
+                i.putExtra("ubicacionBusca", lugarActual);
+                if(tim != null) {
+                    tim.cancel();
+                    tim.purge();
+                    tim = null;
+                }
+                if (mB != null) {
+                    mB.cancelDiscovery();
+                    mB=null;
+                }
+
                 startActivity(i);
 
 
             }
         });
-
+/*
         itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
         mB = BluetoothAdapter.getDefaultAdapter();
         if (mB == null) {
@@ -121,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-
+*/
         //antes de obtener el listado, consultar la mac en el sistema y si no existe insertarla
 
 
@@ -158,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //getJSON(JSON_URL);
-
+/*
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothDevice.ACTION_UUID);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
@@ -178,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         // tim.schedule(tarea,5, 10000);
         tim.schedule(tarea, 50, 10000);
 
-
+*/
       //  HttpAsyncTask m= new HttpAsyncTask();
       //  m.execute();
         setRepeatingAsyncTask();
@@ -260,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             obj = new JSONObject(s);
             nombre=obj.getString("nombre");
-            mac=obj.getString("mac");
+           mac=obj.getString("mac");
             ubicacion=obj.getString("ubicacion");
             fecha=obj.getString("fecha");
 
@@ -335,7 +355,51 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-// sirve para encontrar dispositivos cercanos
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mB = BluetoothAdapter.getDefaultAdapter();
+        if (mB == null) {
+            Toast.makeText(getApplicationContext(), "No tiene bluetooth", Toast.LENGTH_LONG).show();
+        } else {
+            macpropia = mB.getAddress();
+            nombred=mB.getName();
+            Toast.makeText(getApplicationContext(), "Si tiene bluetooth\nNombre: " + mB.getName() + "\nDireccion: " + mB.getAddress(), Toast.LENGTH_LONG).show();
+            if (mB.isEnabled() == true)
+                Toast.makeText(getApplicationContext(), "Bluetooth activado", Toast.LENGTH_LONG).show();
+            else {
+                Toast.makeText(getApplicationContext(), "Bluetooth desactivado, pero se activara en breve", Toast.LENGTH_LONG).show();
+
+                if (mB.enable() == true)
+                    Toast.makeText(getApplicationContext(), "Bluetooth activado", Toast.LENGTH_LONG).show();
+            }
+
+        }
+
+
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothDevice.ACTION_UUID);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        registerReceiver(ActionFoundReceiver, filter); // Don't forget to unregister during onDestroy
+
+
+
+        tim = new Timer();
+
+        TimerTask tarea = new TimerTask() {
+            @Override
+            public void run() {
+                CheckBTState();
+            }
+        };
+        // tim.schedule(tarea,5, 10000);
+        tim.schedule(tarea, 10000, 10000);
+    }
+
+    // sirve para encontrar dispositivos cercanos
 
     private final BroadcastReceiver ActionFoundReceiver = new BroadcastReceiver() {
 
@@ -359,7 +423,7 @@ public class MainActivity extends AppCompatActivity {
 
                 ArrayList<String> detectados= new ArrayList<String>();
 
-                if(btList.size()!=0) {
+                if(btList.size()!=0 && itemsAdapter.getCount()!=0) {
                     while(btList.size()!=0){
                         int index=0;
                         int mayor=-1000;
@@ -388,8 +452,13 @@ public class MainActivity extends AppCompatActivity {
                         if(ubicaciones.get(j).mac.equals(detectados.get(i))){
                             //si es igual la mac a una ubicacion decir que estoy en tal lugar
                             Log.i("mensaje","Estoy en "+ubicaciones.get(j).lugar);
+                            lugarActual=ubicaciones.get(j).lugar;
                             try {
-                                new MulticastServerThread(nombre,macpropia,ubicaciones.get(j).lugar,"mayo").start();
+                                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                                Date date = new Date();
+
+                                String fecha=date.toString();
+                                new MulticastServerThread(nombre,macpropia,ubicaciones.get(j).lugar,fecha).start();
                             }catch(IOException exio) {
                                 Log.i("mensaje","error en el multicast");
                             }

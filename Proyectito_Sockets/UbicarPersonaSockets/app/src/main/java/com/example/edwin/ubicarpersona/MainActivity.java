@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String IP="10.0.5.109";
     String jsonresult;
     ListView ls;
+    Timer tim;
     final Context context = this;
     ArrayAdapter<String> itemsAdapter;
     BluetoothAdapter mB;
@@ -86,6 +87,15 @@ public class MainActivity extends AppCompatActivity {
                 String strName = ls.getItemAtPosition(position).toString();
                 i.putExtra("nombre", strName);
                 i.putExtra("mac", macpropia);
+                if(tim != null) {
+                    tim.cancel();
+                    tim.purge();
+                    tim = null;
+                }
+                if (mB != null) {
+                    mB.cancelDiscovery();
+                    mB=null;
+                }
                 startActivity(i);
 
 
@@ -101,7 +111,7 @@ Button b= (Button) findViewById(R.id.button);
             }
         });
 
-
+/*
         itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
         mB = BluetoothAdapter.getDefaultAdapter();
         if (mB == null) {
@@ -119,7 +129,7 @@ Button b= (Button) findViewById(R.id.button);
                     Toast.makeText(getApplicationContext(), "Bluetooth activado", Toast.LENGTH_LONG).show();
             }
 
-        }
+        }*/
 
         //antes de obtener el listado, consultar la mac en el sistema y si no existe insertarla
 
@@ -159,7 +169,7 @@ Button b= (Button) findViewById(R.id.button);
 
 
         //getJSON(JSON_URL);
-
+/*
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothDevice.ACTION_UUID);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
@@ -177,7 +187,7 @@ Button b= (Button) findViewById(R.id.button);
             }
         };
         // tim.schedule(tarea,5, 10000);
-        tim.schedule(tarea, 50, 10000);
+        tim.schedule(tarea, 50, 10000); */
     }
 
     public class SolicitarActualizar extends AsyncTask<Void, Void, Void> {
@@ -340,6 +350,50 @@ Button b= (Button) findViewById(R.id.button);
 
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+        mB = BluetoothAdapter.getDefaultAdapter();
+        if (mB == null) {
+            Toast.makeText(getApplicationContext(), "No tiene bluetooth", Toast.LENGTH_LONG).show();
+        } else {
+            macpropia = mB.getAddress();
+            nombred=mB.getName();
+            Toast.makeText(getApplicationContext(), "Si tiene bluetooth\nNombre: " + mB.getName() + "\nDireccion: " + mB.getAddress(), Toast.LENGTH_LONG).show();
+            if (mB.isEnabled() == true)
+                Toast.makeText(getApplicationContext(), "Bluetooth activado", Toast.LENGTH_LONG).show();
+            else {
+                Toast.makeText(getApplicationContext(), "Bluetooth desactivado, pero se activara en breve", Toast.LENGTH_LONG).show();
+
+                if (mB.enable() == true)
+                    Toast.makeText(getApplicationContext(), "Bluetooth activado", Toast.LENGTH_LONG).show();
+            }
+
+        }
+
+
+
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothDevice.ACTION_UUID);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        registerReceiver(ActionFoundReceiver, filter); // Don't forget to unregister during onDestroy
+
+
+
+        tim = new Timer();
+
+        TimerTask tarea = new TimerTask() {
+            @Override
+            public void run() {
+                CheckBTState();
+            }
+        };
+        // tim.schedule(tarea,5, 10000);
+        tim.schedule(tarea, 10000, 10000);
     }
 
     private void actualizar(String url) {
@@ -543,6 +597,15 @@ Button b= (Button) findViewById(R.id.button);
                 if(!response.equals("nada")){
                 Intent i = new Intent(MainActivity.this, Opciones.class);
                 i.putExtra("opciones",response);
+                    if(tim != null) {
+                        tim.cancel();
+                        tim.purge();
+                        tim = null;
+                    }
+                    if (mB != null) {
+                        mB.cancelDiscovery();
+                        mB=null;
+                    }
                 startActivity(i);
                 }
 
