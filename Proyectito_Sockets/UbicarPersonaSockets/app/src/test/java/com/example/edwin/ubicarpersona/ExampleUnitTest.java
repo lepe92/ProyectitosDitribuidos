@@ -1,4 +1,4 @@
-package com.example.edwin.ubicarpersona;
+package com.example.edwin.ubicarpersonaS;
 
 import org.junit.Test;
 

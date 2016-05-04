@@ -80,13 +80,15 @@ import java.util.TimerTask;
 public class Mapa extends FragmentActivity implements OnMapReadyCallback, LocationListener {
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     //String IP="192.168.1.70";
-    String IP="10.0.5.247";
+    //String IP="10.0.5.247";
 int llego=0;
-    //String IP="10.0.5.121";
+    String IP="10.0.5.115";
     String paradas = "";
     List<LatLng> pontos;
+    String chofere="";
     ArrayList<Marker> camioncitos;
 ArrayList<Integer> indiceCamiones;
+    ArrayList<String> choferes;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
     private boolean isReceiverRegistered;
     String token = "";
@@ -121,7 +123,8 @@ ArrayList<Integer> indiceCamiones;
 Button solicita,aborda, chofer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-indiceCamiones= new ArrayList<>();
+        choferes = new ArrayList<>();
+        indiceCamiones= new ArrayList<>();
         listaParadas= new ArrayList<>();
         listaIndiceParadas=new ArrayList<>();
         camioncitos = new ArrayList<>();
@@ -234,8 +237,10 @@ indiceCamiones= new ArrayList<>();
                 if (status.equals("1")){
                     identificacion=manager.getPreferences(Mapa.this, "correo");
                 }else{
+                    try{
                     Profile p= Profile.getCurrentProfile();
                     identificacion=p.getName();
+                    }catch(Exception e){}
                 }
                 SolicitarCamion sc= new SolicitarCamion(ruta, ubicacionParadalat,ubicacionParadalng,identificacion);
                 sc.execute();
@@ -248,12 +253,14 @@ indiceCamiones= new ArrayList<>();
             public void onClick(View v) {
                 SessionManager manager= new SessionManager();
                 String status=manager.getPreferences(Mapa.this, "status");
-                String identificacion;
+                String identificacion="usuario";
                 if (status.equals("1")){
                     identificacion=manager.getPreferences(Mapa.this, "correo");
                 }else{
+                    try{
                     Profile p= Profile.getCurrentProfile();
-                    identificacion=p.getName();
+                    identificacion=p.getName();}
+                    catch(Exception E){}
                 }
 
                 String temp[] = Ruta[0].split("!");
@@ -424,6 +431,11 @@ indiceCamiones= new ArrayList<>();
         /////////////////////////////////////UBICACION FIJA///////////////////////////
      //   ubicacionActual = new LatLng(lat, lng);
         ////////////DESCOMENTAR PARA UBICACION REAL//////////////////////////
+
+        try {
+            ontoy.remove();
+        }catch(Exception e){}
+
         LatLng sydney = ubicacionActual;
         MarkerOptions m = new MarkerOptions().position(sydney).title("Mi ubicacion").draggable(true);
         //m.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bus));
@@ -521,6 +533,7 @@ indiceCamiones= new ArrayList<>();
                 }
             }*/
             camionCercano=Integer.parseInt(idcamiones.get(indice));
+            chofere=choferes.get(indice);
             Log.i("mensaje", "indice parada cercana" + listaIndiceParadas.get(paradaMasCercana));
             Log.i("mensaje","indice camiones"+indiceCamiones);
             Log.i("mensaje", "id camiones" + idcamiones);
@@ -616,7 +629,6 @@ ruta=temp[1];
             idbus=camionCercano+"";
             builder = new Dialog(Mapa.this);
             builder.requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-            builder.setTitle("Tu chofer");
             builder.getWindow().setBackgroundDrawable(
                     new ColorDrawable(android.graphics.Color.TRANSPARENT));
             builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -627,10 +639,23 @@ ruta=temp[1];
             });
 
             imageView = new ImageView(Mapa.this);
+
             solicita.setEnabled(false);
 
-            LoadImage m=new LoadImage();
-            m.execute();
+
+
+
+            new AlertDialog.Builder(Mapa.this)
+                    .setTitle("Tu chofer")
+
+                    .setMessage("¿Te va a recoger "+chofere+"\n Deseas conocerl@?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            LoadImage m = new LoadImage();
+                            m.execute();
+                        }
+                    })
+                    .show();
         }
     }
 
@@ -744,7 +769,7 @@ ruta=temp[1];
             HttpURLConnection conn = null;
             BufferedReader bufferedReader = null;
             try {
-                Log.i("mensaje", "legaste al hilo de solicitud");
+                Log.i("mensaje", "llegaste al hilo de solicitud");
                 //constants
                 //http://jimenezlepe.comuv.com/solicita.php
                 URL url = new URL("http://jimenezlepe.comuv.com/Ubus/UbusApp/consultaurl.php");
@@ -827,6 +852,7 @@ ruta=temp[1];
             loading.dismiss();
             if (image != null) {
                 imageView.setImageBitmap(image);
+                //builder.setTitle("Tu chofer es "+chofere);
                 builder.addContentView(imageView, new RelativeLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
@@ -873,6 +899,16 @@ ruta=temp[1];
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        LatLng sydney = ubicacionActual;
+        MarkerOptions m = new MarkerOptions().position(sydney).title("Mi ubicacion").draggable(true);
+        //m.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bus));
+        try {
+            ontoy.remove();
+        }catch(Exception e){}
+        ontoy= mMap.addMarker(m);
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 14));
 
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
@@ -1301,10 +1337,12 @@ indiceCamiones.clear();
                         aborda.setEnabled(true);}
                         Toast.makeText(getApplicationContext(), "Tu ubus ha llegado",Toast.LENGTH_LONG).show();
                         llego=1;
+                        choferes.add(explrObject.getString("chofer"));
                     }
                 }
                 else{
                     m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(explrObject.getString("lat")), Double.parseDouble(explrObject.getString("lng")))).title(explrObject.getString("nombre") + " capacidad" + explrObject.getString("capacidad") + "Manejado por: " + explrObject.get("chofer")).icon(BitmapDescriptorFactory.fromResource(resID)));
+                    choferes.add(explrObject.getString("chofer"));
                 }
                 camioncitos.add(m);
                 idcamiones.add(explrObject.getString("idcamion"));

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.edwin.ubicarpersona">
+    package="com.example.edwin.ubicarpersonaS">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="com.example.edwin.ubicarpersonaS.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -23,11 +23,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".dondeEsta"
+            android:name="com.example.edwin.ubicarpersonaS.dondeEsta"
             android:label="@string/title_activity_donde_esta"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Opciones"
+            android:name="com.example.edwin.ubicarpersonaS.Opciones"
             android:label="@string/title_activity_opciones"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
